@@ -5,7 +5,7 @@ from datetime import datetime
 app = Flask(__name__)
 
 # 🔗 TEMPEL LINK GOOGLE APPS SCRIPT KAMU DI SINI
-GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycby5dRkXn31kDWhe_hNcNAjUgyZ8PpiOPo3Gm5OXNwSdSkI_h9EIuOn3RQiNR11H3BbJ/exec"
+GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzHz1s4mZCrhkx9ALk_bTjOdNL039xnjPTpxvdSoeBQ7OC4bQ5lVo02CayP5-Xnr1qE/exec"
 
 sudah_absen = set()
 
