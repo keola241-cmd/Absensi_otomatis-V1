@@ -12,7 +12,8 @@ IS_ACTIVE = os.environ.get('WEB_ACTIVE', 'TRUE')
 
 @app.before_request
 def check_status():
-  if IS_ACTIVE.upper() != 'TRUE':
+  # Membaca variabel secara langsung setiap ada request masuk
+  if os.environ.get('WEB_ACTIVE', 'TRUE').upper() != 'TRUE':
     return (
         """
         <div style="text-align:center; padding:50px; font-family:sans-serif;">
@@ -23,7 +24,6 @@ def check_status():
         """,
         403,
     )
-
 
 # --------------------------
 
