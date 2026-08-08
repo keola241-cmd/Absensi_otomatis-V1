@@ -1,11 +1,36 @@
+import os
 from flask import Flask, render_template, request, jsonify
 import requests
 from datetime import datetime
 
 app = Flask(__name__)
 
+
+# --- TAMBAHKAN KODE INI ---
+IS_ACTIVE = os.environ.get('WEB_ACTIVE', 'TRUE')
+
+
+@app.before_request
+def check_status():
+  if IS_ACTIVE.upper() != 'TRUE':
+    return (
+        """
+        <div style="text-align:center; padding:50px; font-family:sans-serif;">
+            <h1 style="color:red;">Akses Ditangguhkan ⚠️</h1>
+            <p>Masa aktif aplikasi telah berakhir / menunggu konfirmasi pembayaran.</p>
+            <p>Silakan hubungi Admin/Developer untuk mengaktifkan kembali.</p>
+        </div>
+        """,
+        403,
+    )
+
+
+# --------------------------
+
+
 # 🔗 TEMPEL LINK GOOGLE APPS SCRIPT KAMU DI SINI
-GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzHz1s4mZCrhkx9ALk_bTjOdNL039xnjPTpxvdSoeBQ7OC4bQ5lVo02CayP5-Xnr1qE/exec"
+GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycby5dRkXn31kDWhe_hNcNAjUgyZ8PpiOPo3Gm5OXNwSdSkI_h9EIuOn3RQiNR11H3BbJ/exec"
+
 
 sudah_absen = set()
 
@@ -24,7 +49,7 @@ def get_riwayat():
 @app.route('/proses_absen', methods=['POST'])
 def proses_absen():
     sekarang = datetime.now()
-    batas_waktu = sekarang.replace(hour=23, minute=59, second=59, microsecond=0)
+    batas_waktu = sekarang.replace(hour=23, minute=59 , second=59, microsecond=0)
     
     if sekarang > batas_waktu:
         return jsonify({
