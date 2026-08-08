@@ -1,15 +1,12 @@
-import os
-from flask import Flask, render_template, request, jsonify
-import requests
 from datetime import datetime
+import os
+from flask import Flask, jsonify, render_template, request
+import requests
 
 app = Flask(__name__)
 
 
-# --- TAMBAHKAN KODE INI ---
-IS_ACTIVE = os.environ.get('WEB_ACTIVE', 'TRUE')
-
-
+# --- PEMERIKSA STATUS SAKELAR VERCEL ---
 @app.before_request
 def check_status():
   # Membaca variabel secara langsung setiap ada request masuk
@@ -25,72 +22,84 @@ def check_status():
         403,
     )
 
-# --------------------------
+
+# ---------------------------------------
 
 
 # 🔗 TEMPEL LINK GOOGLE APPS SCRIPT KAMU DI SINI
-GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycby5dRkXn31kDWhe_hNcNAjUgyZ8PpiOPo3Gm5OXNwSdSkI_h9EIuOn3RQiNR11H3BbJ/exec"
+GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycby5dRkXn31kDWhe_hNcNAjUgyZ8PpiOPo3Gm5OXNwSdSkI_h9EIuOn3RQiNR11H3BbJ/exec'
 
 
 sudah_absen = set()
 
+
 @app.route('/')
 def home():
-    return render_template('index.html')
+  return render_template('index.html')
+
 
 @app.route('/get_riwayat', methods=['GET'])
 def get_riwayat():
-    try:
-        response = requests.get(GOOGLE_SHEET_URL)
-        return jsonify(response.json())
-    except Exception as e:
-        return jsonify([])
+  try:
+    response = requests.get(GOOGLE_SHEET_URL)
+    return jsonify(response.json())
+  except Exception as e:
+    return jsonify([])
+
 
 @app.route('/proses_absen', methods=['POST'])
 def proses_absen():
-    sekarang = datetime.now()
-    batas_waktu = sekarang.replace(hour=23, minute=59 , second=59, microsecond=0)
-    
-    if sekarang > batas_waktu:
-        return jsonify({
-            "status": "ditutup", 
-            "message": f"❌ Absen ditutup! Sekarang jam {sekarang.strftime('%H:%M')}."
-        })
+  sekarang = datetime.now()
+  batas_waktu = sekarang.replace(
+      hour=23, minute=59, second=59, microsecond=0
+  )
 
-    data = request.json.get('qr_data', '')
-    data_split = data.split('|')
+  if sekarang > batas_waktu:
+    return jsonify({
+        'status': 'ditutup',
+        'message': f"❌ Absen ditutup! Sekarang jam {sekarang.strftime('%H:%M')}.",
+    })
 
-    if len(data_split) == 4:
-        id_user, nama, kelas, role = data_split
-        
-        if data in sudah_absen:
-            return jsonify({"status": "warning", "message": f"⚠️ {nama} sudah absen sebelumnya!"})
+  data = request.json.get('qr_data', '')
+  data_split = data.split('|')
 
-        sudah_absen.add(data)
-        
-        tanggal = sekarang.strftime('%Y-%m-%d')
-        waktu = sekarang.strftime('%H:%M:%S')
+  if len(data_split) == 4:
+    id_user, nama, kelas, role = data_split
 
-        payload = {
-            "id": id_user,
-            "nama": nama,
-            "kelas": kelas,
-            "role": role,
-            "tanggal": tanggal,
-            "waktu": waktu
-        }
+    if data in sudah_absen:
+      return jsonify({
+          'status': 'warning',
+          'message': f'⚠️ {nama} sudah absen sebelumnya!',
+      })
 
-        try:
-            requests.post(GOOGLE_SHEET_URL, json=payload)
-            return jsonify({
-                "status": "success", 
-                "message": f"✅ {nama} Berhasil Absen!",
-                "siswa": payload
-            })
-        except Exception as e:
-            return jsonify({"status": "error", "message": f"⚠️ Gagal menyimpan ke Sheet: {str(e)}"})
-    else:
-        return jsonify({"status": "error", "message": "⚠️ Format QR Code salah!"})
+    sudah_absen.add(data)
+
+    tanggal = sekarang.strftime('%Y-%m-%d')
+    waktu = sekarang.strftime('%H:%M:%S')
+
+    payload = {
+        'id': id_user,
+        'nama': nama,
+        'kelas': kelas,
+        'role': role,
+        'tanggal': tanggal,
+        'waktu': waktu,
+    }
+
+    try:
+      requests.post(GOOGLE_SHEET_URL, json=payload)
+      return jsonify({
+          'status': 'success',
+          'message': f'✅ {nama} Berhasil Absen!',
+          'siswa': payload,
+      })
+    except Exception as e:
+      return jsonify(
+          {'status': 'error', 'message': f'⚠️ Gagal menyimpan ke Sheet: {str(e)}'}
+      )
+  else:
+    return jsonify({'status': 'error', 'message': '⚠️ Format QR Code salah!'})
+
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+  app.run(host='0.0.0.0', port=5000, debug=True)
