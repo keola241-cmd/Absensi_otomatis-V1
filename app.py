@@ -25,7 +25,7 @@ def check_status():
 
 # ---------------------------------------
 
-GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzTY2r9DtXtJphTbCoSdzyAHvD-SuWgrwEmAEPTB5R8pOgxA1S8PRAV-1ASy1XTzGCmZg/exec'
+GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbx3pI-HnADVY-SQsgvJYqm594Da_5PS8t-_QtAUMrNLi8rDoCTkv_IfoHPn48_1RAUhug/exec'
 WIB = timezone(timedelta(hours=7))
 
 
