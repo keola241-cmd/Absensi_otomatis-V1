@@ -189,15 +189,14 @@
 <body>
 
     <div class="header">
-        <h1>Absensi Siswa</h1>
-        <p>Arahkan QR Code ke kamera. Absen otomatis ditutup jam 09:00 pagi.</p>
+        <h1>Absensi Siswa Kelas-12</h1>
+        <p>Arahkan QR Code ke kamera.</p>
     </div>
 
     <div class="container">
         <div class="panel left-panel">
             <h3>Daftar Hadir Hari Ini</h3>
-            <ul id="daftar_absen">
-                </ul>
+            <ul id="daftar_absen"></ul>
         </div>
 
         <div class="panel right-panel">
@@ -208,9 +207,10 @@
     </div>
 
     <script>
-        let isProcessing = false; // Mencegah scan ganda/dobel
+        let isProcessing = false;
+        let lastScannedText = "";
+        let lastScannedTime = 0;
 
-        // Memuat riwayat dari Google Sheets saat halaman pertama kali dibuka
         function muatDaftarHadir() {
             fetch('/get_riwayat')
                 .then(response => response.json())
@@ -218,30 +218,43 @@
                     let listAbsen = document.getElementById('daftar_absen');
                     listAbsen.innerHTML = '';
                     
-                    data.reverse().forEach(siswa => {
-                        let item = document.createElement('li');
-                        item.innerText = `[${siswa.waktu}] ${siswa.nama} - Kelas ${siswa.kelas} (${siswa.role})`;
-                        listAbsen.appendChild(item);
-                    });
+                    if (Array.isArray(data)) {
+                        data.reverse().forEach(siswa => {
+                            let item = document.createElement('li');
+                            item.innerText = `[${siswa.waktu || ''}] ${siswa.nama || ''} - Kelas ${siswa.kelas || ''} (${siswa.role || ''})`;
+                            listAbsen.appendChild(item);
+                        });
+                    }
                 })
                 .catch(err => console.error("Gagal muat data:", err));
         }
 
         document.addEventListener('DOMContentLoaded', muatDaftarHadir);
 
-        function bicara(text){
-                SpeechSynthesisUtterance
+        // Perbaikan Fungsi Suara
+        function bicara(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Matikan suara sebelumnya
                 let suara = new SpeechSynthesisUtterance(text);
-
                 suara.lang = 'id-ID';
+                suara.rate = 1.0;
+                window.speechSynthesis.speak(suara);
+            }
+        }
 
-                window.speechSynthesis.speak(suara)
+        function onScanSuccess(decodedText, decodedResult) {
+            let sekarang = Date.now();
+
+            // ANTI-SPAM FRONTEND: Jika QR sama di-scan ulang dalam < 8 detik, ABAIKAN TOTAL!
+            if (decodedText === lastScannedText && (sekarang - lastScannedTime) < 8000) {
+                return;
             }
 
-        // Fungsi saat QR Code berhasil di-scan
-        function onScanSuccess(decodedText, decodedResult) {
-            if (isProcessing) return; // Jika sedang proses scan, abaikan scan berikutnya
+            if (isProcessing) return;
             isProcessing = true;
+
+            lastScannedText = decodedText;
+            lastScannedTime = sekarang;
 
             fetch('/proses_absen', {
                 method: 'POST',
@@ -250,23 +263,12 @@
             })
             .then(response => response.json())
             .then(data => {
-                    if (data.status === 'success') {
-                        let namaSiswa = data.siswa ? data.siswa.nama : '';
-                        bicara("Berhasil Absen!!! Selamat Datang")
-                    }
-                    else if (data.status === 'warning'){
-                        bicara(data.message)
-                    }
-                    else if (data.status === 'error'){
-                        bicara("Format QR salah!!!")
-                    }
-                    else if(data.status === 'ditutup'){
-                        bicara("Absen sudah ditutup!!!")
-                    }
                 let textPesan = document.getElementById('pesan_hasil');
                 textPesan.innerText = data.message;
-                
+
                 if (data.status === 'success') {
+                    let namaSiswa = data.siswa ? data.siswa.nama : '';
+                    bicara(`Berhasil Absen, Selamat Datang ${namaSiswa}`);
                     textPesan.style.color = '#34d399';
 
                     let listAbsen = document.getElementById('daftar_absen');
@@ -274,15 +276,18 @@
                     itemBaru.innerText = `[${data.siswa.waktu}] ${data.siswa.nama} - Kelas ${data.siswa.kelas} (${data.siswa.role})`;
                     listAbsen.prepend(itemBaru);
 
-                } else if (data.status === 'ditutup') {
-                    textPesan.style.color = '#f87171';
                 } else if (data.status === 'warning') {
+                    bicara(data.message);
                     textPesan.style.color = '#fbbf24';
+                } else if (data.status === 'ditutup') {
+                    bicara("Absen sudah ditutup!");
+                    textPesan.style.color = '#f87171';
                 } else {
+                    bicara("Format QR salah!");
                     textPesan.style.color = '#f8fafc';
                 }
 
-                // Beri jeda 3 detik sebelum kamera boleh scan lagi
+                // Jeda 3 detik sebelum siap terima scan QR baru yang berbeda
                 setTimeout(() => {
                     isProcessing = false;
                 }, 3000);
