@@ -257,7 +257,7 @@
             .then(response => response.json())
             .then(data => {
                 let textPesan = document.getElementById('pesan_hasil');
-                textPesan.innerText = data.message;
+                textPesan.innerText = data.message || "Proses selesai";
 
                 if (data.status === 'success') {
                     let namaSiswa = data.siswa ? data.siswa.nama : '';
@@ -273,11 +273,12 @@
                     bicara(data.message);
                     textPesan.style.color = '#fbbf24';
                 } else if (data.status === 'ditutup') {
-                    bicara("Absen sudah ditutup!");
+                    bicara(data.message);
                     textPesan.style.color = '#f87171';
                 } else {
-                    bicara("Format QR salah!");
-                    textPesan.style.color = '#f8fafc';
+                    // Menampilkan dan membacakan error spesifik dari backend Python
+                    bicara(data.message || "Terjadi kesalahan!");
+                    textPesan.style.color = '#f87171';
                 }
 
                 setTimeout(() => {
@@ -291,6 +292,11 @@
             })
             .catch(err => {
                 console.error("Error:", err);
+                let textPesan = document.getElementById('pesan_hasil');
+                textPesan.innerText = "⚠️ Gangguan Koneksi Server!";
+                textPesan.style.color = '#f87171';
+                bicara("Gangguan koneksi server!");
+
                 setTimeout(() => {
                     isProcessing = false;
                     try {
