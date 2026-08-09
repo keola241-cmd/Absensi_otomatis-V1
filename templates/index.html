@@ -189,7 +189,7 @@
 <body>
 
     <div class="header">
-        <h1>Absensi Siswa Kelas-11</h1>
+        <h1>Absensi Siswa Kelas-12</h1>
         <p>Arahkan QR Code ke kamera.</p>
     </div>
 
@@ -231,7 +231,7 @@
 
         function bicara(text) {
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // Matikan antrean suara sebelumnya
+                window.speechSynthesis.cancel();
                 let suara = new SpeechSynthesisUtterance(text);
                 suara.lang = 'id-ID';
                 suara.rate = 1.0;
@@ -243,7 +243,6 @@
             if (isProcessing) return;
             isProcessing = true;
 
-            // 1. Langsung kunci dan pause kamera agar tidak spam scan
             try {
                 scanner.pause(true);
             } catch (e) {
@@ -281,7 +280,6 @@
                     textPesan.style.color = '#f8fafc';
                 }
 
-                // 2. Jeda 4 detik sebelum kamera aktif kembali untuk scan berikutnya
                 setTimeout(() => {
                     isProcessing = false;
                     try {
@@ -289,7 +287,7 @@
                     } catch (e) {
                         console.log("Gagal resume scanner:", e);
                     }
-                }, 4000);
+                }, 3500);
             })
             .catch(err => {
                 console.error("Error:", err);
@@ -305,6 +303,5 @@
         let scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
         scanner.render(onScanSuccess);
     </script>
-
 </body>
 </html>
