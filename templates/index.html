@@ -189,7 +189,7 @@
 <body>
 
     <div class="header">
-        <h1>Absensi Siswa Kelas-11</h1>
+        <h1>Absensi Siswa Kelas-12</h1>
         <p>Arahkan QR Code ke kamera.</p>
     </div>
 
@@ -208,8 +208,6 @@
 
     <script>
         let isProcessing = false;
-        let lastScannedText = "";
-        let lastScannedTime = 0;
 
         function muatDaftarHadir() {
             fetch('/get_riwayat')
@@ -231,10 +229,9 @@
 
         document.addEventListener('DOMContentLoaded', muatDaftarHadir);
 
-        // Perbaikan Fungsi Suara
         function bicara(text) {
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); // Matikan suara sebelumnya
+                window.speechSynthesis.cancel(); // Matikan antrean suara sebelumnya
                 let suara = new SpeechSynthesisUtterance(text);
                 suara.lang = 'id-ID';
                 suara.rate = 1.0;
@@ -243,18 +240,15 @@
         }
 
         function onScanSuccess(decodedText, decodedResult) {
-            let sekarang = Date.now();
-
-            // ANTI-SPAM FRONTEND: Jika QR sama di-scan ulang dalam < 8 detik, ABAIKAN TOTAL!
-            if (decodedText === lastScannedText && (sekarang - lastScannedTime) < 8000) {
-                return;
-            }
-
             if (isProcessing) return;
             isProcessing = true;
 
-            lastScannedText = decodedText;
-            lastScannedTime = sekarang;
+            // 1. Langsung kunci dan pause kamera agar tidak spam scan
+            try {
+                scanner.pause(true);
+            } catch (e) {
+                console.log("Gagal pause scanner:", e);
+            }
 
             fetch('/proses_absen', {
                 method: 'POST',
@@ -287,14 +281,24 @@
                     textPesan.style.color = '#f8fafc';
                 }
 
-                // Jeda 3 detik sebelum siap terima scan QR baru yang berbeda
+                // 2. Jeda 4 detik sebelum kamera aktif kembali untuk scan berikutnya
                 setTimeout(() => {
                     isProcessing = false;
-                }, 3000);
+                    try {
+                        scanner.resume();
+                    } catch (e) {
+                        console.log("Gagal resume scanner:", e);
+                    }
+                }, 4000);
             })
             .catch(err => {
                 console.error("Error:", err);
-                isProcessing = false;
+                setTimeout(() => {
+                    isProcessing = false;
+                    try {
+                        scanner.resume();
+                    } catch (e) {}
+                }, 3000);
             });
         }
 
