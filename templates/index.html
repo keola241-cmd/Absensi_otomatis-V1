@@ -229,6 +229,15 @@
 
         document.addEventListener('DOMContentLoaded', muatDaftarHadir);
 
+        function bicara(text){
+                SpeechSynthesisUtterance
+                let suara = new SpeechSynthesisUtterance("text");
+
+                suara.lang = 'id-ID';
+
+                window.speechSynthesis.speak(suara)
+            }
+
         // Fungsi saat QR Code berhasil di-scan
         function onScanSuccess(decodedText, decodedResult) {
             if (isProcessing) return; // Jika sedang proses scan, abaikan scan berikutnya
@@ -241,6 +250,19 @@
             })
             .then(response => response.json())
             .then(data => {
+                    if (data.status === 'success') {
+                        let namaSiswa = data.siswa ? data.siswa.nama : '';
+                        bicara("Berhasil Absen!!! Selamat Datang")
+                    }
+                    else if (data.status === 'warning'){
+                        bicara(data.message)
+                    }
+                    else if (data.status === 'error'){
+                        bicara("Format QR salah!!!")
+                    }
+                    else if(data.status === 'ditutup'){
+                        bicara("Absen sudah ditutup!!!")
+                    }
                 let textPesan = document.getElementById('pesan_hasil');
                 textPesan.innerText = data.message;
                 
