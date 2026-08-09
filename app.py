@@ -26,7 +26,7 @@ def check_status():
 
 # ---------------------------------------
 
-GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbyn88ANfRmR2M5knaX88Fkd_ALbp8jE1w6giz1Vsme8tuiQ8Zm-DtYgVBqU0wWRhKsc/exec'
+GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbyUOj-cCh5EdXFGd8m5EHbr2bCVCqbX4SzH7iPDsL5i9LiyUhY5HAGCDsj3SDjIyndXvQ/exec'
 
 # Storage RAM: Key -> timestamp_terakhir_scan
 sudah_absen = {}
