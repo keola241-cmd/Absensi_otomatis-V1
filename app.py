@@ -23,7 +23,7 @@ def check_status():
         )
 
 # Ganti dengan URL deployment Web App Apps Script kamu yang terbaru
-GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbzXI59AdPvPXTuZYc0MUqZLuGw0X1B-tXqJxEVf2wA3e9QoH1gUBD-2On4JCKFnZB6UAA/exec'
+GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbw8kTkj03aF_YueKc40ttGK7LD9arAZPhYJ6HjeS9kUAg_0jGMUQ2zggRnInNcEvREEBA/exec'
 
 # Storage RAM: Key -> timestamp_terakhir_scan
 sudah_absen = {}
