@@ -144,22 +144,6 @@
             background: #090d16;
         }
 
-        #reader button {
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            color: #fff;
-            border: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            margin: 10px 0;
-            transition: opacity 0.2s;
-        }
-
-        #reader button:hover {
-            opacity: 0.9;
-        }
-
         #pesan_hasil {
             margin-top: 1rem;
             font-size: 0.95rem;
@@ -276,7 +260,6 @@
                     bicara(data.message);
                     textPesan.style.color = '#f87171';
                 } else {
-                    // Menampilkan dan membacakan error spesifik dari backend Python
                     bicara(data.message || "Terjadi kesalahan!");
                     textPesan.style.color = '#f87171';
                 }
