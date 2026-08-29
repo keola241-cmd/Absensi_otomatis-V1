@@ -8,13 +8,14 @@
     <script src="https://unpkg.com/html5-qrcode"></script>
     
     <style>
-        /* === VARIABEL TEMA (Gelap & Terang Disesuaikan Presisi) === */
-        :root[data-theme="dark"] {
-            --bg-color: #060713;
+        /* === VARIABEL TEMA (DARK & LIGHT) === */
+        [data-theme="dark"] {
+            --bg-main: #060713;
             --card-bg: #141634;
             --card-scanner: #18193f;
             --text-title: #a78bfa;
             --text-sub: #ffffff;
+            --text-heading: #ffffff;
             --item-bg: #101229;
             --border-color: #272a5a;
             --sidebar-bg: #101229;
@@ -22,17 +23,17 @@
             --scanner-box-bg: #a3a3a3;
         }
 
-        :root[data-theme="light"] {
-            /* Latar belakang gradient sesuai gambar referensi */
-            --bg-color: linear-gradient(135deg, #bba7be 0%, #c48bd5 50%, #b864cc 100%);
-            --card-bg: #cf73d1;
-            --card-scanner: #d57be3;
-            --text-title: #701a75;
-            --text-sub: #ffffff;
-            --item-bg: #4a2e56;
-            --border-color: #b35bc2;
-            --sidebar-bg: #cf73d1;
-            --btn-bg: #bc5fc4;
+        [data-theme="light"] {
+            --bg-main: linear-gradient(135deg, #caa3d6 0%, #b87ccc 50%, #af5acb 100%);
+            --card-bg: #d77ce0;
+            --card-scanner: #d77ce0;
+            --text-title: #611566;
+            --text-sub: #611566;
+            --text-heading: #611566;
+            --item-bg: #47264f;
+            --border-color: #ba65c4;
+            --sidebar-bg: #d77ce0;
+            --btn-bg: #ba65c4;
             --scanner-box-bg: #cccccc;
         }
 
@@ -45,8 +46,8 @@
         }
 
         body {
-            background: var(--bg-color);
-            background-attachment: fixed;
+            background: var(--bg-main) !important;
+            background-attachment: fixed !important;
             color: var(--text-sub);
             min-height: 100vh;
             padding: 1.5rem;
@@ -102,18 +103,6 @@
             color: var(--text-title);
         }
 
-        /* LOGO KANAN HEADER */
-        .logo-header {
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
         /* === SIDEBAR TOGGLE === */
         .sidebar {
             position: fixed;
@@ -122,13 +111,13 @@
             width: 260px;
             height: 100%;
             background: var(--sidebar-bg);
-            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.4);
             z-index: 100;
             transition: left 0.3s ease;
             padding: 2rem 1.5rem;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            gap: 2rem;
         }
 
         .sidebar.active {
@@ -137,7 +126,7 @@
 
         .sidebar h3 {
             font-size: 1.2rem;
-            color: var(--text-sub);
+            color: var(--text-heading);
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 0.5rem;
         }
@@ -146,14 +135,18 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: 1rem;
+        }
+
+        .theme-switch-wrapper span {
+            color: var(--text-heading);
+            font-weight: 600;
         }
 
         .switch {
             position: relative;
             display: inline-block;
-            width: 54px;
-            height: 28px;
+            width: 50px;
+            height: 26px;
         }
 
         .switch input {
@@ -166,37 +159,35 @@
             position: absolute;
             cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ffffff;
+            background-color: #ccc;
             transition: .4s;
             border-radius: 34px;
-            border: 2px solid var(--border-color);
         }
 
         .slider:before {
             position: absolute;
             content: "";
-            height: 20px;
-            width: 20px;
-            left: 2px;
-            bottom: 2px;
-            background-color: var(--card-bg);
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
             transition: .4s;
             border-radius: 50%;
         }
 
         input:checked + .slider {
-            background-color: #ffffff;
+            background-color: #8b5cf6;
         }
 
         input:checked + .slider:before {
             transform: translateX(24px);
-            background-color: #701a75;
         }
 
         .overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.5);
             display: none;
             z-index: 99;
         }
@@ -230,7 +221,7 @@
             margin-bottom: 1rem;
             text-align: center;
             width: 100%;
-            color: var(--text-sub);
+            color: var(--text-heading);
         }
 
         /* UN-MIRROR KAMERA SCANNER */
@@ -255,9 +246,9 @@
             text-align: center;
             padding: 0.8rem 1rem;
             border-radius: 12px;
-            background: rgba(0,0,0,0.15);
+            background: rgba(0,0,0,0.2);
             width: 100%;
-            color: var(--text-sub);
+            color: var(--text-heading);
         }
 
         .panel-daftar {
@@ -319,7 +310,7 @@
             margin-bottom: 1rem;
         }
 
-        /* === RESPONSIVE DESIGN (HP PORTRAIT & LANDSCAPE) === */
+        /* === RESPONSIVE DESIGN === */
         @media (max-width: 768px) {
             .mobile-alert {
                 display: block;
@@ -340,11 +331,6 @@
             .header-title h2 {
                 font-size: 1.2rem;
             }
-
-            .logo-header {
-                width: 40px;
-                height: 40px;
-            }
         }
     </style>
 </head>
@@ -355,15 +341,13 @@
 
     <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
-        <div>
-            <h3>Pengaturan Tampilan</h3>
-            <div class="theme-switch-wrapper">
-                <span>Mode Terang</span>
-                <label class="switch">
-                    <input type="checkbox" id="themeToggle" onchange="switchTheme(this)">
-                    <span class="slider"></span>
-                </label>
-            </div>
+        <h3>Pengaturan Tampilan</h3>
+        <div class="theme-switch-wrapper">
+            <span>Mode Terang</span>
+            <label class="switch">
+                <input type="checkbox" id="themeToggle" onchange="switchTheme(this)">
+                <span class="slider"></span>
+            </label>
         </div>
     </div>
 
@@ -410,14 +394,23 @@
             document.getElementById('overlay').classList.toggle('active');
         }
 
-        // === TOGGLE TEMA REAL-TIME (DARK / LIGHT) ===
-        function switchTheme(e) {
-            if (e.target.checked) {
-                document.documentElement.setAttribute('data-theme', 'light');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-            }
+        // === TOGGLE TEMA (DARK / LIGHT) ===
+        function switchTheme(checkbox) {
+            const theme = checkbox.checked ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
         }
+
+        // === RESTORE TEMA SAAT PERTAMA KALI MUAT ===
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                themeToggle.checked = (savedTheme === 'light');
+            }
+            muatDaftarHadir();
+        });
 
         // === AMBIL RIWAYAT ABSEN ===
         let isProcessing = false;
@@ -437,8 +430,6 @@
                 })
                 .catch(err => console.error("Gagal muat data:", err));
         }
-
-        document.addEventListener('DOMContentLoaded', muatDaftarHadir);
 
         // === SUARA SPEECH ===
         function bicara(text) {
