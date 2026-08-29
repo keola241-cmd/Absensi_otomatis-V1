@@ -44,29 +44,18 @@ def get_riwayat():
         return jsonify([])
 
 @app.route('/proses_absen', methods=['POST'])
+@app.route('/proses_absen', methods=['POST'])
 def proses_absen():
     sekarang = datetime.now(WIB)
     tanggal = sekarang.strftime('%Y-%m-%d')
     waktu = sekarang.strftime('%H:%M')
 
-    # --- ATURAN JAM MASUK ---
-    BATAS_JAM_MASUK = "10:00" # <-- Ganti di sini kalau jam masuknya beda
+    BATAS_JAM_MASUK = "10:00"
     
     if waktu > BATAS_JAM_MASUK:
         status_kehadiran = "telat"
     else:
         status_kehadiran = "tepat"
-    # ------------------------
-
-    batas_waktu = sekarang.replace(
-        hour=23, minute=59, second=59, microsecond=0
-    )
-
-    if sekarang > batas_waktu:
-        return jsonify({
-            'status': 'ditutup',
-            'message': f'❌ Absen ditutup! Sekarang jam {waktu}.',
-        })
 
     data = request.json.get('qr_data', '')
     data_split = data.split('|')
@@ -84,31 +73,8 @@ def proses_absen():
                 if selisih_detik < 15:
                     return jsonify({
                         'status': 'warning',
-                        'message': f'⚠️ {nama} sudah absen hari ini!',
+                        'message': f'⚠️ {nama} sudah absen!',
                     })
-
-                masih_ada_di_sheet = False
-                try:
-                    res = requests.get(GOOGLE_SHEET_URL, timeout=8)
-                    if res.status_code == 200:
-                        riwayat = res.json()
-                        masih_ada_di_sheet = any(
-                            str(item.get('id')) == str(id_user)
-                            and str(item.get('tanggal')) == tanggal
-                            for item in riwayat
-                            if isinstance(item, dict)
-                        )
-                except Exception:
-                    masih_ada_di_sheet = True
-
-                if masih_ada_di_sheet:
-                    sudah_absen[kunci_absen_hari_ini] = waktu_sekarang
-                    return jsonify({
-                        'status': 'warning',
-                        'message': f'⚠️ {nama} sudah absen hari ini!',
-                    })
-                else:
-                    del sudah_absen[kunci_absen_hari_ini]
 
             sudah_absen[kunci_absen_hari_ini] = waktu_sekarang
 
@@ -119,19 +85,28 @@ def proses_absen():
             'role': role,
             'tanggal': tanggal,
             'waktu': waktu,
-            'status_kehadiran': status_kehadiran # Data telat/tepat dikirim ke sheet
+            'status_kehadiran': status_kehadiran
         }
 
-        # Pesan pop-up di layar berdasarkan status
-        if status_kehadiran == "telat":
-            pesan_tampil = f'⚠️ {nama} Terlambat! ({waktu})'
-        else:
-            pesan_tampil = f'✅ {nama} Tepat Waktu! ({waktu})'
-
         try:
-            requests.post(
+            # Kirim data dan baca respon dari Google Sheets
+            res = requests.post(
                 GOOGLE_SHEET_URL, json=payload, allow_redirects=True, timeout=12
             )
+            res_data = res.json()
+
+            # Jika Google Sheets mengembalikan status error
+            if res_data.get('status') == 'error':
+                with lock:
+                    if kunci_absen_hari_ini in sudah_absen:
+                        del sudah_absen[kunci_absen_hari_ini]
+                return jsonify({
+                    'status': 'error',
+                    'message': f"⚠️ Sheet Error: {res_data.get('message')}"
+                })
+
+            pesan_tampil = f'⚠️ {nama} Terlambat!' if status_kehadiran == "telat" else f'✅ {nama} Tepat Waktu!'
+
             return jsonify({
                 'status': 'success',
                 'message': pesan_tampil,
@@ -147,6 +122,6 @@ def proses_absen():
             })
     else:
         return jsonify({'status': 'error', 'message': '⚠️ Format QR Code salah!'})
-
+        
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
