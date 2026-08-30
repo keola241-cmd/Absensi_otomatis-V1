@@ -45,42 +45,45 @@ def get_riwayat():
 def proses_absen():
     sekarang = datetime.now(WIB)
     tanggal = sekarang.strftime('%Y-%m-%d')
-    waktu = sekarang.strftime('%H:%M')  # Format HH:MM (e.g. "06:50")
+    waktu = sekarang.strftime('%H:%M')       # Format HH:MM (e.g. "06:50" atau "17:30")
+    waktu_titik = waktu.replace(':', '.')    # Format HH.MM (e.g. "06.50" atau "17.30")
 
     data = request.json.get('qr_data', '')
     data_split = data.split('|')
 
     if len(data_split) == 4:
         id_user, nama, kelas, role = [item.strip() for item in data_split]
-        kunci_absen_hari_ini = f'{tanggal}|{id_user}'
+        kunci_cooldown = f'{tanggal}|{id_user}'
         waktu_sekarang = time.time()
 
+        # --- 1. JEDA COOLDOWN (Mencegah Kamera Scan 2x Secara Tidak Sengaja) ---
+        # Jeda 60 detik agar pegawai/siswa tidak terscan berulang kali saat berdiri di depan kamera
+        COOLDOWN_DETIK = 60 
+
         with lock:
-            if kunci_absen_hari_ini in sudah_absen:
-                waktu_scan_terakhir = sudah_absen[kunci_absen_hari_ini]
+            if kunci_cooldown in sudah_absen:
+                waktu_scan_terakhir = sudah_absen[kunci_cooldown]
                 selisih_detik = waktu_sekarang - waktu_scan_terakhir
 
-                if selisih_detik < 15:
+                if selisih_detik < COOLDOWN_DETIK:
+                    sisa_detik = int(COOLDOWN_DETIK - selisih_detik)
                     return jsonify({
                         'status': 'warning',
-                        'message': f'⚠️ {nama} sudah absen!',
+                        'message': f'⚠️ {nama} baru saja melakukan scan! Tunggu {sisa_detik} detik lagi.',
                     })
 
-            sudah_absen[kunci_absen_hari_ini] = waktu_sekarang
+            sudah_absen[kunci_cooldown] = waktu_sekarang
 
-        # --- LOGIKA MEMBEDAKAN GURU & SISWA ---
-        waktu_titik = waktu.replace(':', '.') # Ubah "06:50" jadi "06.50"
-        
-        if role.lower() == 'guru':
-            BATAS_GURU = "07:00"
-            if waktu <= BATAS_GURU:
-                status_kehadiran = "tepat"
-                teks_waktu = f"*{waktu_titik}" # Contoh: *06.50
-            else:
-                status_kehadiran = "telat"
-                teks_waktu = f";{waktu_titik}" # Contoh: ;07.01
+        # --- 2. PENENTUAN FORMAT DATA BERDASARKAN ROLE ---
+        role_clean = role.lower()
+        daftar_pegawai = ['guru', 'karyawan', 'anak magang', 'magang', 'pekerja kantoran']
+
+        if role_clean in daftar_pegawai:
+            # Pegawai: Kirim jam murni "06.50" / "17.30", Apps Script akan tentukan ini Masuk/Pulang/Lembur
+            status_kehadiran = "pegawai"
+            teks_waktu = waktu_titik
         else:
-            # Pengondisian untuk Siswa
+            # Siswa / Pelajar (Kondisi default)
             BATAS_SISWA = "10:00"
             if waktu <= BATAS_SISWA:
                 status_kehadiran = "tepat"
@@ -91,45 +94,53 @@ def proses_absen():
         payload = {
             'id': id_user,
             'nama': nama,
-            'kelas': kelas,
+            'kelas': kelas,        # Target Tab di Google Sheets (Guru / Karyawan / Magang / Kelas 10A)
             'role': role,
             'tanggal': tanggal,
             'waktu': teks_waktu,
             'status_kehadiran': status_kehadiran
         }
 
+        # --- 3. KIRIM DATA KE GOOGLE APPS SCRIPT ---
         try:
             res = requests.post(
                 GOOGLE_SHEET_URL, json=payload, allow_redirects=True, timeout=12
             )
             res_data = res.json()
 
+            # Jika Apps Script mengembalikan status Error
             if res_data.get('status') == 'error':
                 with lock:
-                    if kunci_absen_hari_ini in sudah_absen:
-                        del sudah_absen[kunci_absen_hari_ini]
+                    if kunci_cooldown in sudah_absen:
+                        del sudah_absen[kunci_cooldown]
                 return jsonify({
                     'status': 'error',
                     'message': f"⚠️ Sheet Error: {res_data.get('message')}"
                 })
 
-            if status_kehadiran == "telat":
-                pesan_tampil = f'⚠️ [{role}] {nama} Terlambat ({teks_waktu})!'
-            else:
-                pesan_tampil = f'✅ [{role}] {nama} Tepat Waktu ({teks_waktu})!'
+            # Ambil notifikasi langsung dari Google Apps Script (Misal: "ABSEN MASUK", "ABSEN PULANG", "LEMBUR")
+            pesan_dari_script = res_data.get('message')
+            
+            if not pesan_dari_script:
+                if status_kehadiran == "telat":
+                    pesan_dari_script = f'⚠️ [{role}] {nama} Terlambat ({teks_waktu})!'
+                else:
+                    pesan_dari_script = f'✅ [{role}] {nama} Presensi Berhasil ({teks_waktu})!'
 
             return jsonify({
-                'status': 'success',
-                'message': pesan_tampil,
+                'status': res_data.get('status', 'success'),
+                'message': pesan_dari_script,
                 'siswa': payload,
             })
+
         except Exception:
+            # Jika koneksi gagal, hapus cooldown agar bisa scan ulang
             with lock:
-                if kunci_absen_hari_ini in sudah_absen:
-                    del sudah_absen[kunci_absen_hari_ini]
+                if kunci_cooldown in sudah_absen:
+                    del sudah_absen[kunci_cooldown]
             return jsonify({
                 'status': 'error',
-                'message': '⚠️ Koneksi lambat, silakan coba scan lagi.',
+                'message': '⚠️ Koneksi lambat/terputus, silakan coba scan lagi.',
             })
     else:
         return jsonify({'status': 'error', 'message': '⚠️ Format QR Code salah!'})
