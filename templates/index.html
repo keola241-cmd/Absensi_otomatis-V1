@@ -143,6 +143,26 @@
             font-size: 0.95rem;
         }
 
+        /* STYLE SLIDER VOLUME */
+        .volume-control-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            color: var(--text-heading);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .volume-control-wrapper input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: var(--border-color);
+            outline: none;
+            accent-color: #8b5cf6;
+            cursor: pointer;
+        }
+
         .switch {
             position: relative;
             display: inline-block;
@@ -342,6 +362,14 @@
                 <span class="slider"></span>
             </label>
         </div>
+        
+        <div class="volume-control-wrapper">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Volume Suara</span>
+                <span id="volumeLabel" style="font-size: 0.85rem; color: var(--text-title); font-weight: 700;">100%</span>
+            </div>
+            <input type="range" id="volumeRange" min="0" max="1" step="0.05" value="1" oninput="switchVolume(this.value)">
+        </div>
     </div>
 
     <div class="header">
@@ -390,6 +418,15 @@
             localStorage.setItem('useVoice', checkbox.checked);
         }
 
+        // === SLIDER VOLUME ===
+        function switchVolume(val) {
+            localStorage.setItem('appVolume', val);
+            const label = document.getElementById('volumeLabel');
+            if (label) {
+                label.innerText = Math.round(val * 100) + '%';
+            }
+        }
+
         // === RESTORE TEMA & PENGATURAN SAAT PERTAMA KALI MUAT ===
         document.addEventListener('DOMContentLoaded', () => {
             // Restore Tema
@@ -400,11 +437,19 @@
                 themeToggle.checked = (savedTheme === 'light');
             }
 
-            // Restore Pengaturan Suara (Default: true / aktif)
+            // Restore Pengaturan Suara TTS (Default: true / aktif)
             const savedVoice = localStorage.getItem('useVoice');
             const voiceToggle = document.getElementById('voiceToggle');
             if (voiceToggle) {
                 voiceToggle.checked = (savedVoice !== 'false');
+            }
+
+            // Restore Volume (Default: 1.0 / 100%)
+            const savedVolume = localStorage.getItem('appVolume') ?? '1.0';
+            const volumeRange = document.getElementById('volumeRange');
+            if (volumeRange) {
+                volumeRange.value = savedVolume;
+                switchVolume(savedVolume);
             }
 
             muatDaftarHadir();
@@ -429,7 +474,7 @@
                 .catch(err => console.error("Gagal muat data:", err));
         }
 
-        // === FUNGSI SUARA BEEP ('BIB') SANGA RINGAN (WEB AUDIO API) ===
+        // === FUNGSI SUARA BEEP ('BIB') DENGAN VOLUME KENCANG & DAPAT DISESUAIKAN ===
         function playBeep() {
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -438,16 +483,22 @@
                 const oscillator = audioCtx.createOscillator();
                 const gainNode = audioCtx.createGain();
 
+                // Ambil volume dari slider (0.0 - 1.0)
+                const vol = parseFloat(localStorage.getItem('appVolume') ?? '1.0');
+                if (vol <= 0) return; // Jika volume 0, jangan bunyikan beep
+
                 oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); // Frekuensi 800Hz (Suara Bib Crisp)
-                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.15);
+                oscillator.frequency.setValueAtTime(850, audioCtx.currentTime); // Frekuensi 850Hz (Suara Bib Jelas)
+                
+                // Set Volume Beep (ditingkatkan agar lebih kencang)
+                gainNode.gain.setValueAtTime(vol * 0.8, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.18);
 
                 oscillator.connect(gainNode);
                 gainNode.connect(audioCtx.destination);
 
                 oscillator.start();
-                oscillator.stop(audioCtx.currentTime + 0.15);
+                oscillator.stop(audioCtx.currentTime + 0.18);
             } catch (e) {
                 console.error("Audio Beep error:", e);
             }
@@ -460,6 +511,11 @@
                 let suara = new SpeechSynthesisUtterance(text);
                 suara.lang = 'id-ID';
                 suara.rate = 1.0;
+                
+                // Ambil volume dari slider (0.0 - 1.0)
+                const vol = parseFloat(localStorage.getItem('appVolume') ?? '1.0');
+                suara.volume = vol; 
+
                 window.speechSynthesis.speak(suara);
             }
         }
