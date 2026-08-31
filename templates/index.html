@@ -24,17 +24,17 @@
         }
 
         [data-theme="light"] {
-            --bg-main: linear-gradient(135deg, #caa3d6 0%, #b87ccc 50%, #af5acb 100%);
-            --card-bg: #d77ce0;
-            --card-scanner: #d77ce0;
-            --text-title: #611566;
-            --text-sub: #611566;
-            --text-heading: #611566;
-            --item-bg: #47264f;
-            --border-color: #ba65c4;
-            --sidebar-bg: #d77ce0;
-            --btn-bg: #ba65c4;
-            --scanner-box-bg: #cccccc;
+            --bg-main: #f8fafc;
+            --card-bg: #ffffff;
+            --card-scanner: #ffffff;
+            --text-title: #4f46e5;
+            --text-sub: #1e293b;
+            --text-heading: #0f172a;
+            --item-bg: #f1f5f9;
+            --border-color: #cbd5e1;
+            --sidebar-bg: #ffffff;
+            --btn-bg: #e2e8f0;
+            --scanner-box-bg: #e2e8f0;
         }
 
         * {
@@ -83,7 +83,7 @@
         .menu-btn span {
             width: 24px;
             height: 3px;
-            background: white;
+            background: var(--text-heading);
             border-radius: 2px;
         }
 
@@ -111,13 +111,13 @@
             width: 260px;
             height: 100%;
             background: var(--sidebar-bg);
-            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.4);
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
             z-index: 100;
             transition: left 0.3s ease;
             padding: 2rem 1.5rem;
             display: flex;
             flex-direction: column;
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
         .sidebar.active {
@@ -140,6 +140,7 @@
         .theme-switch-wrapper span {
             color: var(--text-heading);
             font-weight: 600;
+            font-size: 0.95rem;
         }
 
         .switch {
@@ -213,6 +214,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            border: 1px solid var(--border-color);
         }
 
         .panel-scanner h3, .panel-daftar h3 {
@@ -246,9 +248,10 @@
             text-align: center;
             padding: 0.8rem 1rem;
             border-radius: 12px;
-            background: rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.05);
             width: 100%;
             color: var(--text-heading);
+            border: 1px solid var(--border-color);
         }
 
         .panel-daftar {
@@ -263,6 +266,7 @@
             padding: 0.8rem;
             text-align: center;
             margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
         }
 
         #daftar_absen {
@@ -288,13 +292,14 @@
 
         #daftar_absen li {
             background: var(--item-bg);
-            color: #ffffff;
+            color: var(--text-heading);
             padding: 1rem 1.2rem;
             border-radius: 16px;
             font-size: 0.95rem;
             font-weight: 500;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             animation: slideInRight 0.4s ease-out forwards;
+            border: 1px solid var(--border-color);
         }
 
         /* === RESPONSIVE DESIGN === */
@@ -319,10 +324,8 @@
 </head>
 <body>
 
-    <!-- OVERLAY SIDEBAR -->
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-    <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
         <h3>Pengaturan Tampilan</h3>
         <div class="theme-switch-wrapper">
@@ -332,9 +335,15 @@
                 <span class="slider"></span>
             </label>
         </div>
+        <div class="theme-switch-wrapper">
+            <span>Gunakan Suara (TTS)</span>
+            <label class="switch">
+                <input type="checkbox" id="voiceToggle" onchange="switchVoice(this)">
+                <span class="slider"></span>
+            </label>
+        </div>
     </div>
 
-    <!-- HEADER -->
     <div class="header">
         <button class="menu-btn" onclick="toggleSidebar()">
             <span></span>
@@ -347,16 +356,13 @@
         </div>
     </div>
 
-    <!-- CONTAINER UTAMA -->
     <div class="container">
-        <!-- SCANNER PANEL (KIRI) -->
         <div class="panel-scanner">
-            <h3>Scannner QR CODE</h3>
+            <h3>Scanner QR CODE</h3>
             <div id="reader"></div>
             <div id="pesan_hasil">Menunggu scan...</div>
         </div>
 
-        <!-- DAFTAR HADIR PANEL (KANAN) -->
         <div class="panel-daftar">
             <div class="daftar-header-box">
                 <h3>Daftar Hadir</h3>
@@ -379,14 +385,28 @@
             localStorage.setItem('theme', theme);
         }
 
-        // === RESTORE TEMA SAAT PERTAMA KALI MUAT ===
+        // === TOGGLE SUARA (TTS) ===
+        function switchVoice(checkbox) {
+            localStorage.setItem('useVoice', checkbox.checked);
+        }
+
+        // === RESTORE TEMA & PENGATURAN SAAT PERTAMA KALI MUAT ===
         document.addEventListener('DOMContentLoaded', () => {
+            // Restore Tema
             const savedTheme = localStorage.getItem('theme') || 'dark';
             document.documentElement.setAttribute('data-theme', savedTheme);
             const themeToggle = document.getElementById('themeToggle');
             if (themeToggle) {
                 themeToggle.checked = (savedTheme === 'light');
             }
+
+            // Restore Pengaturan Suara (Default: true / aktif)
+            const savedVoice = localStorage.getItem('useVoice');
+            const voiceToggle = document.getElementById('voiceToggle');
+            if (voiceToggle) {
+                voiceToggle.checked = (savedVoice !== 'false');
+            }
+
             muatDaftarHadir();
         });
 
@@ -409,7 +429,31 @@
                 .catch(err => console.error("Gagal muat data:", err));
         }
 
-        // === SUARA SPEECH ===
+        // === FUNGSI SUARA BEEP ('BIB') SANGA RINGAN (WEB AUDIO API) ===
+        function playBeep() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const audioCtx = new AudioContext();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); // Frekuensi 800Hz (Suara Bib Crisp)
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.15);
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.15);
+            } catch (e) {
+                console.error("Audio Beep error:", e);
+            }
+        }
+
+        // === FUNGSI SUARA SPEECH (TEXT TO SPEECH) ===
         function bicara(text) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
@@ -433,9 +477,14 @@
             if (isProcessing) return;
             isProcessing = true;
 
+            // 1. BUNYIKAN BEEP SANGAT CEPAT DETIK ITU JUGA SAAT QR TERBACA
+            playBeep();
+
             try {
                 scanner.pause(true);
             } catch (e) {}
+
+            const useVoice = document.getElementById('voiceToggle') ? document.getElementById('voiceToggle').checked : true;
 
             fetch('/proses_absen', {
                 method: 'POST',
@@ -447,19 +496,26 @@
                 let textPesan = document.getElementById('pesan_hasil');
                 textPesan.innerText = data.message || "Proses selesai";
 
+                // 2. SETELAH PROSES SELESAI -> BARU UCAPKAN SUARA DENGAN TEXT TO SPEECH (JIKA DIAKTIFKAN)
                 if (data.status === 'success') {
                     let namaSiswa = data.siswa ? data.siswa.nama : '';
-                    bicara(`Berhasil Absen, Selamat Datang ${namaSiswa}`);
-                    textPesan.style.color = '#34d399';
+                    if (useVoice) {
+                        bicara(`Berhasil Absen, Selamat Datang ${namaSiswa}`);
+                    }
+                    textPesan.style.color = '#10b981';
 
                     tambahItemKeDaftar(data.siswa);
 
                 } else if (data.status === 'warning') {
-                    bicara(data.message);
-                    textPesan.style.color = '#fbbf24';
+                    if (useVoice) {
+                        bicara(data.message);
+                    }
+                    textPesan.style.color = '#f59e0b';
                 } else {
-                    bicara(data.message || "Terjadi kesalahan!");
-                    textPesan.style.color = '#f87171';
+                    if (useVoice) {
+                        bicara(data.message || "Terjadi kesalahan!");
+                    }
+                    textPesan.style.color = '#ef4444';
                 }
 
                 setTimeout(() => {
@@ -472,8 +528,11 @@
             .catch(err => {
                 let textPesan = document.getElementById('pesan_hasil');
                 textPesan.innerText = "⚠️ Gangguan Koneksi Server!";
-                textPesan.style.color = '#f87171';
-                bicara("Gangguan koneksi server!");
+                textPesan.style.color = '#ef4444';
+                
+                if (useVoice) {
+                    bicara("Gangguan koneksi server!");
+                }
 
                 setTimeout(() => {
                     isProcessing = false;
