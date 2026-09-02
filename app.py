@@ -41,12 +41,29 @@ def get_riwayat():
     except Exception:
         return jsonify([])
 
+# --- ROUTE BUAT TAB KELAS BARU DARI WEB ---
+@app.route('/buat_tab', methods=['POST'])
+def buat_tab():
+    try:
+        nama_tab = request.json.get('nama_tab', '').strip()
+        if not nama_tab:
+            return jsonify({'status': 'error', 'message': 'Nama Tab/Kelas tidak boleh kosong!'})
+        
+        payload = {
+            'action': 'create_tab',
+            'kelas': nama_tab
+        }
+        res = requests.post(GOOGLE_SHEET_URL, json=payload, timeout=12)
+        return jsonify(res.json())
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Gagal membuat tab: {str(e)}'})
+
 @app.route('/proses_absen', methods=['POST'])
 def proses_absen():
     sekarang = datetime.now(WIB)
     tanggal = sekarang.strftime('%Y-%m-%d')
-    waktu = sekarang.strftime('%H:%M')       # Format HH:MM (e.g. "06:50" atau "17:30")
-    waktu_titik = waktu.replace(':', '.')    # Format HH.MM (e.g. "06.50" atau "17.30")
+    waktu = sekarang.strftime('%H:%M')        # Format HH:MM (e.g. "07:15")
+    waktu_titik = waktu.replace(':', '.')    # Format HH.MM (e.g. "07.15")
 
     data = request.json.get('qr_data', '')
     data_split = data.split('|')
@@ -56,8 +73,7 @@ def proses_absen():
         kunci_cooldown = f'{tanggal}|{id_user}'
         waktu_sekarang = time.time()
 
-        # --- 1. JEDA COOLDOWN (Mencegah Kamera Scan 2x Secara Tidak Sengaja) ---
-        # Jeda 60 detik agar pegawai/siswa tidak terscan berulang kali saat berdiri di depan kamera
+        # --- 1. JEDA COOLDOWN (60 Detik) ---
         COOLDOWN_DETIK = 60 
 
         with lock:
@@ -74,17 +90,16 @@ def proses_absen():
 
             sudah_absen[kunci_cooldown] = waktu_sekarang
 
-        # --- 2. PENENTUAN FORMAT DATA BERDASARKAN ROLE ---
+        # --- 2. PENENTUAN STATUS KHUSUS SISWA & PEGAWAI ---
         role_clean = role.lower()
         daftar_pegawai = ['guru', 'karyawan', 'anak magang', 'magang', 'pekerja kantoran']
 
         if role_clean in daftar_pegawai:
-            # Pegawai: Kirim jam murni "06.50" / "17.30", Apps Script akan tentukan ini Masuk/Pulang/Lembur
             status_kehadiran = "pegawai"
             teks_waktu = waktu_titik
         else:
-            # Siswa / Pelajar (Kondisi default)
-            BATAS_SISWA = "10:00"
+            # Batas Jam Masuk Siswa (Misal Jam 07:00)
+            BATAS_SISWA = "07:00"
             if waktu <= BATAS_SISWA:
                 status_kehadiran = "tepat"
             else:
@@ -94,7 +109,7 @@ def proses_absen():
         payload = {
             'id': id_user,
             'nama': nama,
-            'kelas': kelas,        # Target Tab di Google Sheets (Guru / Karyawan / Magang / Kelas 10A)
+            'kelas': kelas,        # Target Tab
             'role': role,
             'tanggal': tanggal,
             'waktu': teks_waktu,
@@ -108,7 +123,6 @@ def proses_absen():
             )
             res_data = res.json()
 
-            # Jika Apps Script mengembalikan status Error
             if res_data.get('status') == 'error':
                 with lock:
                     if kunci_cooldown in sudah_absen:
@@ -118,14 +132,14 @@ def proses_absen():
                     'message': f"⚠️ Sheet Error: {res_data.get('message')}"
                 })
 
-            # Ambil notifikasi langsung dari Google Apps Script (Misal: "ABSEN MASUK", "ABSEN PULANG", "LEMBUR")
             pesan_dari_script = res_data.get('message')
             
+            # Jika respon dari Apps Script kosong, gunakan fallback penamaan lengkap siswa terlambat
             if not pesan_dari_script:
                 if status_kehadiran == "telat":
-                    pesan_dari_script = f'⚠️ [{role}] {nama} Terlambat ({teks_waktu})!'
+                    pesan_dari_script = f'⚠️ {nama} Terlambat ({teks_waktu})!'
                 else:
-                    pesan_dari_script = f'✅ [{role}] {nama} Presensi Berhasil ({teks_waktu})!'
+                    pesan_dari_script = f'✅ {nama} Presensi Berhasil ({teks_waktu})!'
 
             return jsonify({
                 'status': res_data.get('status', 'success'),
@@ -134,7 +148,6 @@ def proses_absen():
             })
 
         except Exception:
-            # Jika koneksi gagal, hapus cooldown agar bisa scan ulang
             with lock:
                 if kunci_cooldown in sudah_absen:
                     del sudah_absen[kunci_cooldown]
