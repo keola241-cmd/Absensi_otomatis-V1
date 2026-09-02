@@ -7,6 +7,14 @@ import requests
 
 app = Flask(__name__)
 
+# ==============================================================================
+# 🔗 TEMPAT MENYAMBUNGKAN GOOGLE SHEETS APPS SCRIPT
+# Ganti URL di bawah ini dengan URL Web App Deployment Apps Script kamu!
+# ==============================================================================
+GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxkImh_DpnBxKKn_TWRoSKArVnx9ZDorhO2WXrh7GA8ghsdfGXqLz94rKlPuojrz1dznw/exec'
+# ==============================================================================
+
+
 # --- PEMERIKSA STATUS VERCEL / LOKAL ---
 @app.before_request
 def check_status():
@@ -22,8 +30,6 @@ def check_status():
             403,
         )
 
-GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxkImh_DpnBxKKn_TWRoSKArVnx9ZDorhO2WXrh7GA8ghsdfGXqLz94rKlPuojrz1dznw/exec'
-
 sudah_absen = {}
 lock = threading.Lock()
 
@@ -33,6 +39,7 @@ WIB = timezone(timedelta(hours=7))
 def home():
     return render_template('index.html')
 
+# --- ROUTE 1: GET RIWAYAT ABSEN HARI INI ---
 @app.route('/get_riwayat', methods=['GET'])
 def get_riwayat():
     try:
@@ -41,7 +48,38 @@ def get_riwayat():
     except Exception:
         return jsonify([])
 
-# --- ROUTE BUAT TAB KELAS BARU DARI WEB ---
+# --- ROUTE 2: AMBIL DAFTAR TAB DARI GOOGLE SHEETS ---
+@app.route('/get_tabs', methods=['GET'])
+def get_tabs():
+    try:
+        payload = {'action': 'get_tabs'}
+        res = requests.post(GOOGLE_SHEET_URL, json=payload, timeout=10)
+        return jsonify(res.json())
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Gagal mengambil daftar tab: {str(e)}', 'tabs': []})
+
+# --- ROUTE 3: AMBIL DATA REKAP KHUSUS UNTUK TAB/KELAS CERTAIN ---
+@app.route('/get_rekap', methods=['POST', 'GET'])
+def get_rekap():
+    try:
+        if request.method == 'POST':
+            nama_tab = request.json.get('nama_tab', '').strip()
+        else:
+            nama_tab = request.args.get('nama_tab', '').strip()
+
+        if not nama_tab:
+            return jsonify({'status': 'error', 'message': 'Nama Tab/Kelas wajib diisi!'})
+
+        payload = {
+            'action': 'get_rekap',
+            'nama_tab': nama_tab
+        }
+        res = requests.post(GOOGLE_SHEET_URL, json=payload, timeout=12)
+        return jsonify(res.json())
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'Gagal memuat rekap: {str(e)}', 'data': []})
+
+# --- ROUTE 4: BUAT TAB KELAS BARU DARI WEB ---
 @app.route('/buat_tab', methods=['POST'])
 def buat_tab():
     try:
@@ -58,12 +96,13 @@ def buat_tab():
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'Gagal membuat tab: {str(e)}'})
 
+# --- ROUTE 5: PROSES ABSEN DARI QR SCANNER ---
 @app.route('/proses_absen', methods=['POST'])
 def proses_absen():
     sekarang = datetime.now(WIB)
     tanggal = sekarang.strftime('%Y-%m-%d')
-    waktu = sekarang.strftime('%H:%M')        # Format HH:MM (e.g. "07:15")
-    waktu_titik = waktu.replace(':', '.')    # Format HH.MM (e.g. "07.15")
+    waktu = sekarang.strftime('%H:%M')
+    waktu_titik = waktu.replace(':', '.')
 
     data = request.json.get('qr_data', '')
     data_split = data.split('|')
@@ -73,7 +112,7 @@ def proses_absen():
         kunci_cooldown = f'{tanggal}|{id_user}'
         waktu_sekarang = time.time()
 
-        # --- 1. JEDA COOLDOWN (60 Detik) ---
+        # JEDA COOLDOWN (60 Detik)
         COOLDOWN_DETIK = 60 
 
         with lock:
@@ -90,7 +129,7 @@ def proses_absen():
 
             sudah_absen[kunci_cooldown] = waktu_sekarang
 
-        # --- 2. PENENTUAN STATUS KHUSUS SISWA & PEGAWAI ---
+        # PENENTUAN STATUS PEGAWAI VS SISWA
         role_clean = role.lower()
         daftar_pegawai = ['guru', 'karyawan', 'anak magang', 'magang', 'pekerja kantoran']
 
@@ -98,7 +137,6 @@ def proses_absen():
             status_kehadiran = "pegawai"
             teks_waktu = waktu_titik
         else:
-            # Batas Jam Masuk Siswa (Misal Jam 07:00)
             BATAS_SISWA = "07:00"
             if waktu <= BATAS_SISWA:
                 status_kehadiran = "tepat"
@@ -109,14 +147,13 @@ def proses_absen():
         payload = {
             'id': id_user,
             'nama': nama,
-            'kelas': kelas,        # Target Tab
+            'kelas': kelas,
             'role': role,
             'tanggal': tanggal,
             'waktu': teks_waktu,
             'status_kehadiran': status_kehadiran
         }
 
-        # --- 3. KIRIM DATA KE GOOGLE APPS SCRIPT ---
         try:
             res = requests.post(
                 GOOGLE_SHEET_URL, json=payload, allow_redirects=True, timeout=12
@@ -134,7 +171,6 @@ def proses_absen():
 
             pesan_dari_script = res_data.get('message')
             
-            # Jika respon dari Apps Script kosong, gunakan fallback penamaan lengkap siswa terlambat
             if not pesan_dari_script:
                 if status_kehadiran == "telat":
                     pesan_dari_script = f'⚠️ {nama} Terlambat ({teks_waktu})!'
