@@ -686,6 +686,7 @@
         </div>
     </div>
 
+    <!-- HALAMAN SCANNER -->
     <div id="page-scanner" class="page-view active">
         <div class="container">
             <div class="panel-scanner">
@@ -703,6 +704,7 @@
         </div>
     </div>
 
+    <!-- HALAMAN REKAP SISWA -->
     <div id="page-siswa" class="page-view">
         <div class="rekap-container">
             <h3 class="section-title">Halaman Rekap Siswa</h3>
@@ -710,33 +712,24 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <span class="stat-title">Total Siswa</span>
-                    <span class="stat-value" id="stat-total-siswa">32</span>
+                    <span class="stat-value" id="stat-total-siswa">0</span>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-title">Rata-rata Kehadiran</span>
-                    <span class="stat-value" style="color: #10b981;">95%</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-title">Tepat Waktu</span>
-                    <span class="stat-value" style="color: #3b82f6;">38 Hari</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-title">Terlambat</span>
-                    <span class="stat-value" style="color: #f59e0b;">2 Hari</span>
+                    <span class="stat-title">Tab Aktif</span>
+                    <span class="stat-value" id="stat-tab-aktif" style="color: #a78bfa;">-</span>
                 </div>
             </div>
 
+            <!-- TAB MENU BAR AKAN DIISI OTOMATIS DARI GOOGLE SHEETS -->
             <div class="sub-menu-bar" id="kelasMenuBar">
-                <button class="tab-btn active" onclick="pilihKelas('11', this)">Kelas 11</button>
-                <button class="tab-btn" onclick="pilihKelas('12', this)">Kelas 12</button>
-                <button class="tab-btn btn-add-tab" onclick="bukaModalTambahKelas()">+ Tambah Kelas (Sheet)</button>
+                <!-- Generasi Tombol Tab Otomatis via JS -->
             </div>
 
             <div class="action-filter-bar">
                 <div class="search-box">
                     <input type="text" id="searchSiswa" placeholder="🔍 Cari Nama Siswa..." onkeyup="filterTabelSiswa()">
                 </div>
-                <button class="btn-export" onclick="exportKeCSV('tabel_rekap_siswa', 'Rekap_Absens_Siswa')">📥 Ekspor CSV</button>
+                <button class="btn-export" onclick="exportKeCSV('tabel_rekap_siswa', 'Rekap_Absensi_Siswa')">📥 Ekspor CSV</button>
                 <button class="btn-print" onclick="window.print()">🖨️ Cetak</button>
             </div>
 
@@ -748,69 +741,27 @@
                             <th>Nama Siswa</th>
                             <th>Masuk (Tepat)</th>
                             <th>Terlambat</th>
-                            <th>Tidak Masuk</th>
+                            <th>Izin / Sakit</th>
                             <th>Persentase</th>
                         </tr>
                     </thead>
                     <tbody id="tabel_rekap_siswa">
-                        <tr>
-                            <td>1</td>
-                            <td>Kaila</td>
-                            <td><span class="badge badge-success">18 Hari</span></td>
-                            <td><span class="badge badge-warning">2 Hari</span></td>
-                            <td><span class="badge badge-danger">0 Hari</span></td>
-                            <td><strong>90%</strong></td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Budi Santoso</td>
-                            <td><span class="badge badge-success">20 Hari</span></td>
-                            <td><span class="badge badge-warning">0 Hari</span></td>
-                            <td><span class="badge badge-danger">0 Hari</span></td>
-                            <td><strong>100%</strong></td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Siti Aminah</td>
-                            <td><span class="badge badge-success">19 Hari</span></td>
-                            <td><span class="badge badge-warning">1 Hari</span></td>
-                            <td><span class="badge badge-danger">0 Hari</span></td>
-                            <td><strong>95%</strong></td>
-                        </tr>
+                        <!-- Data dimasukkan secara dinamis dari Sheets -->
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
+    <!-- HALAMAN GURU -->
     <div id="page-guru" class="page-view">
         <div class="rekap-container">
             <h3 class="section-title">Halaman Rekap Kehadiran Guru</h3>
-            
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-title">Total Guru Pengajar</span>
-                    <span class="stat-value">12</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-title">Hadir Hari Ini</span>
-                    <span class="stat-value" style="color: #10b981;">10</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-title">Terlambat</span>
-                    <span class="stat-value" style="color: #f59e0b;">1</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-title">Izin / Sakit</span>
-                    <span class="stat-value" style="color: #ef4444;">1</span>
-                </div>
-            </div>
 
             <div class="action-filter-bar">
                 <div class="search-box">
-                    <input type="text" id="searchGuru" placeholder="🔍 Cari Nama Guru / Mapel..." onkeyup="filterTabelGuru()">
+                    <input type="text" id="searchGuru" placeholder="🔍 Cari Nama Guru..." onkeyup="filterTabelGuru()">
                 </div>
-                <button class="btn-export" style="background: #8b5cf6;" onclick="bukaModalTambahGuru()">+ Tambah Data Guru</button>
                 <button class="btn-export" onclick="exportKeCSV('tabel_rekap_guru', 'Rekap_Absensi_Guru')">📥 Ekspor CSV</button>
                 <button class="btn-print" onclick="window.print()">🖨️ Cetak</button>
             </div>
@@ -820,69 +771,31 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>NIP / ID</th>
                             <th>Nama Guru</th>
-                            <th>Mata Pelajaran</th>
                             <th>Hadir Tepat</th>
                             <th>Terlambat</th>
-                            <th>Izin/Sakit</th>
-                            <th>Status Kehadiran</th>
+                            <th>Izin / Sakit</th>
+                            <th>Persentase Kehadiran</th>
                         </tr>
                     </thead>
                     <tbody id="tabel_rekap_guru">
-                        <tr>
-                            <td>1</td>
-                            <td>G-1001</td>
-                            <td>Drs. Joko Widodo</td>
-                            <td>Matematika</td>
-                            <td><span class="badge badge-success">22 Hari</span></td>
-                            <td><span class="badge badge-warning">1 Hari</span></td>
-                            <td><span class="badge badge-danger">0 Hari</span></td>
-                            <td><span class="badge badge-success">Sangat Baik (96%)</span></td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>G-1002</td>
-                            <td>Sri Wahyuni, S.Pd.</td>
-                            <td>Bahasa Indonesia</td>
-                            <td><span class="badge badge-success">23 Hari</span></td>
-                            <td><span class="badge badge-warning">0 Hari</span></td>
-                            <td><span class="badge badge-danger">0 Hari</span></td>
-                            <td><span class="badge badge-success">Sempurna (100%)</span></td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>G-1003</td>
-                            <td>Ahmad Dahlan, M.Pd.</td>
-                            <td>Fisika</td>
-                            <td><span class="badge badge-success">20 Hari</span></td>
-                            <td><span class="badge badge-warning">2 Hari</span></td>
-                            <td><span class="badge badge-danger">1 Hari</span></td>
-                            <td><span class="badge badge-warning">Baik (87%)</span></td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>G-1004</td>
-                            <td>Nurul Hidayah, S.Si.</td>
-                            <td>Kimia</td>
-                            <td><span class="badge badge-success">21 Hari</span></td>
-                            <td><span class="badge badge-warning">1 Hari</span></td>
-                            <td><span class="badge badge-danger">1 Hari</span></td>
-                            <td><span class="badge badge-success">Baik (91%)</span></td>
-                        </tr>
+                        <!-- Data guru diisi secara dinamis dari Sheets -->
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
+    <!-- MODAL TAMBAH KELAS / TAB -->
     <div class="modal" id="modalTambahKelas">
         <div class="modal-content">
             <h4>Tambah Kelas Baru</h4>
             <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 1rem;">
                 Nama kelas ini akan otomatis membuat Tab/Sheet baru di Google Sheets.
             </p>
-            <input type="text" id="namaKelasBaru" placeholder="Contoh: Kelas 10A">
+
+            <input type="text" id="namaKelasBaru" placeholder="Masukkan nama tab (cth: 10, 11, 12)">
+
             <div class="modal-actions">
                 <button class="tab-btn" onclick="tutupModalTambahKelas()">Batal</button>
                 <button class="tab-btn btn-add-tab" onclick="prosesTambahKelas()">Buat Tab Sheet</button>
@@ -890,20 +803,9 @@
         </div>
     </div>
 
-    <div class="modal" id="modalTambahGuru">
-        <div class="modal-content">
-            <h4>Tambah Data Guru Baru</h4>
-            <input type="text" id="nipGuru" placeholder="NIP / ID Guru">
-            <input type="text" id="namaGuru" placeholder="Nama Lengkap Guru">
-            <input type="text" id="mapelGuru" placeholder="Mata Pelajaran">
-            <div class="modal-actions">
-                <button class="tab-btn" onclick="tutupModalTambahGuru()">Batal</button>
-                <button class="tab-btn btn-add-tab" onclick="prosesTambahGuru()">Simpan Guru</button>
-            </div>
-        </div>
-    </div>
-
     <script>
+        let tabAktifSekarang = "";
+
         // === LOGIKA NAVIGASI HALAMAN (MULTI-PAGE) ===
         function switchPage(pageId, element) {
             document.querySelectorAll('.page-view').forEach(page => {
@@ -916,18 +818,129 @@
             document.getElementById(pageId).classList.add('active');
             element.classList.add('active');
 
+            if (pageId === 'page-siswa' || pageId === 'page-guru') {
+                muatDaftarTab();
+            }
+
             toggleSidebar();
         }
 
-        // === LOGIKA PILIH TAB KELAS DI REKAP SISWA ===
+        // === AMBIL DAFTAR TAB HANYA DARI GOOGLE SHEETS ===
+        function muatDaftarTab() {
+            fetch('/get_tabs')
+                .then(res => res.json())
+                .then(data => {
+                    const containerMenu = document.getElementById('kelasMenuBar');
+                    containerMenu.innerHTML = '';
+
+                    if (data.status === 'success' && Array.isArray(data.tabs)) {
+                        let tabSiswaDimuat = false;
+
+                        data.tabs.forEach((namaTab, index) => {
+                            const btnTab = document.createElement('button');
+                            btnTab.className = 'tab-btn';
+                            btnTab.innerText = namaTab;
+                            btnTab.onclick = function() { pilihKelas(namaTab, this); };
+
+                            // Aktifkan tab pertama secara otomatis
+                            if (index === 0 && !tabAktifSekarang) {
+                                btnTab.classList.add('active');
+                                tabAktifSekarang = namaTab;
+                                tabSiswaDimuat = true;
+                            } else if (namaTab === tabAktifSekarang) {
+                                btnTab.classList.add('active');
+                                tabSiswaDimuat = true;
+                            }
+
+                            containerMenu.appendChild(btnTab);
+                        });
+
+                        // Tambahkan tombol Tambah Tab Kelas
+                        const btnAdd = document.createElement('button');
+                        btnAdd.className = 'tab-btn btn-add-tab';
+                        btnAdd.innerText = '+ Tambah Kelas (Sheet)';
+                        btnAdd.onclick = bukaModalTambahKelas;
+                        containerMenu.appendChild(btnAdd);
+
+                        // Ambil data untuk tab pertama yang aktif
+                        if (tabSiswaDimuat) {
+                            muatRekapTab(tabAktifSekarang);
+                        } else if (data.tabs.length > 0) {
+                            tabAktifSekarang = data.tabs[0];
+                            muatRekapTab(tabAktifSekarang);
+                        }
+                    }
+                })
+                .catch(err => console.error("Gagal mengambil daftar tab:", err));
+        }
+
+        // === LOGIKA PILIH TAB KELAS DI REKAP ===
         function pilihKelas(namaKelas, element) {
             document.querySelectorAll('#kelasMenuBar .tab-btn').forEach(btn => {
-                if(!btn.classList.contains('btn-add-tab')) {
+                if (!btn.classList.contains('btn-add-tab')) {
                     btn.classList.remove('active');
                 }
             });
-            element.classList.add('active');
-            console.log("Memuat data rekap untuk: " + namaKelas);
+            if (element) element.classList.add('active');
+            
+            tabAktifSekarang = namaKelas;
+            muatRekapTab(namaKelas);
+        }
+
+        // === MEMUAT DATA REKAP DARI TAB SPECIFIC GOOGLE SHEETS ===
+        function muatRekapTab(namaTab) {
+            document.getElementById('stat-tab-aktif').innerText = namaTab;
+            
+            const tbodySiswa = document.getElementById('tabel_rekap_siswa');
+            const tbodyGuru = document.getElementById('tabel_rekap_guru');
+            
+            tbodySiswa.innerHTML = '<tr><td colspan="6" style="text-align:center;">Memuat data dari Google Sheets...</td></tr>';
+            tbodyGuru.innerHTML = '<tr><td colspan="6" style="text-align:center;">Memuat data dari Google Sheets...</td></tr>';
+
+            fetch('/get_rekap', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nama_tab: namaTab })
+            })
+            .then(res => res.json())
+            .then(data => {
+                tbodySiswa.innerHTML = '';
+                tbodyGuru.innerHTML = '';
+
+                if (data.status === 'success' && Array.isArray(data.data)) {
+                    document.getElementById('stat-total-siswa').innerText = data.data.length;
+
+                    if (data.data.length === 0) {
+                        tbodySiswa.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada data di tab ini.</td></tr>';
+                        tbodyGuru.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada data di tab ini.</td></tr>';
+                        return;
+                    }
+
+                    data.data.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${item.no}</td>
+                            <td>${item.nama}</td>
+                            <td><span class="badge badge-success">${item.tepat} Hari</span></td>
+                            <td><span class="badge badge-warning">${item.telat} Hari</span></td>
+                            <td><span class="badge badge-danger">${item.izin_sakit} Hari</span></td>
+                            <td><strong>${item.persentase}</strong></td>
+                        `;
+                        
+                        // Jika nama tab adalah "Guru", tampilkan di tabel Guru, selebihnya di tabel Siswa
+                        if (String(namaTab).toLowerCase().includes('guru')) {
+                            tbodyGuru.appendChild(tr);
+                        } else {
+                            tbodySiswa.appendChild(tr);
+                        }
+                    });
+                } else {
+                    tbodySiswa.innerHTML = `<tr><td colspan="6" style="text-align:center;">${data.message || 'Gagal mengambil data.'}</td></tr>`;
+                }
+            })
+            .catch(err => {
+                tbodySiswa.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Gagal terhubung ke server!</td></tr>';
+            });
         }
 
         // === LOGIKA MODAL TAMBAH KELAS ===
@@ -942,63 +955,28 @@
 
         function prosesTambahKelas() {
             const namaKelas = document.getElementById('namaKelasBaru').value.trim();
-            if(!namaKelas) {
+            if (!namaKelas) {
                 alert("Harap masukkan nama kelas!");
                 return;
             }
 
-            const btnBaru = document.createElement('button');
-            btnBaru.className = 'tab-btn';
-            btnBaru.innerText = namaKelas;
-            btnBaru.onclick = function() { pilihKelas(namaKelas, this); };
-
-            const containerMenu = document.getElementById('kelasMenuBar');
-            const btnAdd = containerMenu.querySelector('.btn-add-tab');
-            containerMenu.insertBefore(btnBaru, btnAdd);
-
-            tutupModalTambahKelas();
-            alert(`Tab "${namaKelas}" berhasil dibuat!`);
-        }
-
-        // === LOGIKA MODAL TAMBAH GURU ===
-        function bukaModalTambahGuru() {
-            document.getElementById('modalTambahGuru').classList.add('active');
-        }
-
-        function tutupModalTambahGuru() {
-            document.getElementById('modalTambahGuru').classList.remove('active');
-            document.getElementById('nipGuru').value = '';
-            document.getElementById('namaGuru').value = '';
-            document.getElementById('mapelGuru').value = '';
-        }
-
-        function prosesTambahGuru() {
-            const nip = document.getElementById('nipGuru').value.trim();
-            const nama = document.getElementById('namaGuru').value.trim();
-            const mapel = document.getElementById('mapelGuru').value.trim();
-
-            if (!nip || !nama || !mapel) {
-                alert("Harap isi semua bidang!");
-                return;
-            }
-
-            const tbody = document.getElementById('tabel_rekap_guru');
-            const count = tbody.querySelectorAll('tr').length + 1;
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${count}</td>
-                <td>${nip}</td>
-                <td>${nama}</td>
-                <td>${mapel}</td>
-                <td><span class="badge badge-success">0 Hari</span></td>
-                <td><span class="badge badge-warning">0 Hari</span></td>
-                <td><span class="badge badge-danger">0 Hari</span></td>
-                <td><span class="badge badge-success">Baru</span></td>
-            `;
-            tbody.appendChild(tr);
-
-            tutupModalTambahGuru();
-            alert(`Data guru ${nama} berhasil ditambahkan!`);
+            fetch('/buat_tab', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nama_tab: namaKelas })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                if (data.status === 'success') {
+                    tutupModalTambahKelas();
+                    tabAktifSekarang = namaKelas;
+                    muatDaftarTab();
+                }
+            })
+            .catch(err => {
+                alert("Gagal menambahkan tab kelas!");
+            });
         }
 
         // === FITUR FILTER PENCARIAN TABEL ===
@@ -1006,7 +984,7 @@
             const input = document.getElementById('searchSiswa').value.toLowerCase();
             const rows = document.querySelectorAll('#tabel_rekap_siswa tr');
             rows.forEach(row => {
-                const nama = row.cells[1].textContent.toLowerCase();
+                const nama = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
                 row.style.display = nama.includes(input) ? '' : 'none';
             });
         }
@@ -1015,10 +993,8 @@
             const input = document.getElementById('searchGuru').value.toLowerCase();
             const rows = document.querySelectorAll('#tabel_rekap_guru tr');
             rows.forEach(row => {
-                const nama = row.cells[2].textContent.toLowerCase();
-                const mapel = row.cells[3].textContent.toLowerCase();
-                const nip = row.cells[1].textContent.toLowerCase();
-                row.style.display = (nama.includes(input) || mapel.includes(input) || nip.includes(input)) ? '' : 'none';
+                const nama = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
+                row.style.display = nama.includes(input) ? '' : 'none';
             });
         }
 
@@ -1041,7 +1017,7 @@
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `${filename}.csv`);
+            link.setAttribute("download", `${filename}_${tabAktifSekarang}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -1097,9 +1073,10 @@
             }
 
             muatDaftarHadir();
+            muatDaftarTab();
         });
 
-        // === AMBIL RIWAYAT ABSEN ===
+        // === AMBIL RIWAYAT ABSEN SCANNER ===
         let isProcessing = false;
 
         function muatDaftarHadir() {
