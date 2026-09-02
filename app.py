@@ -11,7 +11,7 @@ app = Flask(__name__)
 # 🔗 TEMPAT MENYAMBUNGKAN GOOGLE SHEETS APPS SCRIPT
 # Ganti URL di bawah ini dengan URL Web App Deployment Apps Script kamu!
 # ==============================================================================
-GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxkImh_DpnBxKKn_TWRoSKArVnx9ZDorhO2WXrh7GA8ghsdfGXqLz94rKlPuojrz1dznw/exec'
+GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbz656v_emKK4DMdp20z8Z7L7pHzIfa3qcs3-b-46v00cOe54BnpA9mS3DGMFCwuafE7_A/exec'
 # ==============================================================================
 
 
