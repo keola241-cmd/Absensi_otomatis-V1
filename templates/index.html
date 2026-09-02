@@ -20,7 +20,15 @@
             --border-color: #272a5a;
             --sidebar-bg: #101229;
             --btn-bg: #1e204a;
+            --btn-primary: #8b5cf6;
+            --btn-primary-hover: #7c3aed;
             --scanner-box-bg: #a3a3a3;
+            --table-header: #1c1f4c;
+            --badge-success: #10b981;
+            --badge-warning: #f59e0b;
+            --badge-danger: #ef4444;
+            --stat-card-bg: #181a40;
+            --input-bg: #101229;
         }
 
         [data-theme="light"] {
@@ -34,7 +42,15 @@
             --border-color: #cbd5e1;
             --sidebar-bg: #ffffff;
             --btn-bg: #e2e8f0;
+            --btn-primary: #4f46e5;
+            --btn-primary-hover: #4338ca;
             --scanner-box-bg: #e2e8f0;
+            --table-header: #e2e8f0;
+            --badge-success: #059669;
+            --badge-warning: #d97706;
+            --badge-danger: #dc2626;
+            --stat-card-bg: #f1f5f9;
+            --input-bg: #ffffff;
         }
 
         * {
@@ -103,21 +119,22 @@
             color: var(--text-title);
         }
 
-        /* === SIDEBAR TOGGLE === */
+        /* === SIDEBAR TOGGLE & NAVIGASI === */
         .sidebar {
             position: fixed;
             top: 0;
-            left: -280px;
-            width: 260px;
+            left: -300px;
+            width: 280px;
             height: 100%;
             background: var(--sidebar-bg);
             box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
             z-index: 100;
             transition: left 0.3s ease;
-            padding: 2rem 1.5rem;
+            padding: 2rem 1.2rem;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 1.2rem;
+            overflow-y: auto;
         }
 
         .sidebar.active {
@@ -125,10 +142,36 @@
         }
 
         .sidebar h3 {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--text-heading);
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            padding: 0.8rem 1rem;
+            background: var(--btn-bg);
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-heading);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--btn-primary);
+            color: #ffffff;
         }
 
         .theme-switch-wrapper {
@@ -143,7 +186,6 @@
             font-size: 0.95rem;
         }
 
-        /* STYLE SLIDER VOLUME */
         .volume-control-wrapper {
             display: flex;
             flex-direction: column;
@@ -159,7 +201,7 @@
             border-radius: 5px;
             background: var(--border-color);
             outline: none;
-            accent-color: #8b5cf6;
+            accent-color: var(--btn-primary);
             cursor: pointer;
         }
 
@@ -198,7 +240,7 @@
         }
 
         input:checked + .slider {
-            background-color: #8b5cf6;
+            background-color: var(--btn-primary);
         }
 
         input:checked + .slider:before {
@@ -217,7 +259,16 @@
             display: block;
         }
 
-        /* === LAYOUT UTAMA === */
+        /* === HALAMAN VIEW (TAB SECTION) === */
+        .page-view {
+            display: none;
+        }
+
+        .page-view.active {
+            display: block;
+        }
+
+        /* === LAYOUT UTAMA SCANNER === */
         .container {
             display: flex;
             flex-direction: row;
@@ -237,7 +288,7 @@
             border: 1px solid var(--border-color);
         }
 
-        .panel-scanner h3, .panel-daftar h3 {
+        .panel-scanner h3, .panel-daftar h3, .section-title {
             font-size: 1.4rem;
             font-weight: 700;
             margin-bottom: 1rem;
@@ -246,7 +297,6 @@
             color: var(--text-heading);
         }
 
-        /* UN-MIRROR KAMERA SCANNER */
         #reader video {
             transform: scaleX(-1) !important;
             -webkit-transform: scaleX(-1) !important;
@@ -298,7 +348,6 @@
             overflow-y: auto;
         }
 
-        /* ANIMASI SLIDE-IN KANAN KE KIRI */
         @keyframes slideInRight {
             from {
                 opacity: 0;
@@ -322,6 +371,242 @@
             border: 1px solid var(--border-color);
         }
 
+        /* === STATISTIK CARDS === */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--stat-card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .stat-card .stat-title {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-heading);
+        }
+
+        /* === SEARCH & FILTER BAR === */
+        .action-filter-bar {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.65rem 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-heading);
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-export {
+            padding: 0.65rem 1.2rem;
+            background: #10b981;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-export:hover {
+            background: #059669;
+        }
+
+        .btn-print {
+            padding: 0.65rem 1.2rem;
+            background: #3b82f6;
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-print:hover {
+            background: #2563eb;
+        }
+
+        /* === DESAIN HALAMAN REKAP SISWA & GURU === */
+        .rekap-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .sub-menu-bar {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .tab-btn {
+            padding: 0.6rem 1.2rem;
+            background: var(--btn-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-heading);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background: var(--btn-primary);
+            color: #ffffff;
+        }
+
+        .btn-add-tab {
+            background: #10b981 !important;
+            color: #ffffff !important;
+            border: none;
+            margin-left: auto;
+        }
+
+        /* TABEL REKAP DATA SISWA & GURU */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .custom-table th, .custom-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .custom-table th {
+            background: var(--table-header);
+            color: var(--text-heading);
+            font-weight: 600;
+        }
+
+        .custom-table tr:hover {
+            background: var(--item-bg);
+        }
+
+        .badge {
+            padding: 0.3rem 0.6rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #fff;
+            display: inline-block;
+        }
+
+        .badge-success { background: var(--badge-success); }
+        .badge-warning { background: var(--badge-warning); }
+        .badge-danger { background: var(--badge-danger); }
+
+        /* MODAL POPUP */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 450px;
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-content h4 {
+            color: var(--text-heading);
+            margin-bottom: 1rem;
+        }
+
+        .modal-content input, .modal-content select {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--item-bg);
+            color: var(--text-heading);
+            margin-bottom: 1rem;
+            outline: none;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.8rem;
+        }
+
+        /* === PRINT STYLES === */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .rekap-container, .rekap-container * {
+                visibility: visible;
+            }
+            .rekap-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .sub-menu-bar, .action-filter-bar, .menu-btn, .sidebar, .overlay {
+                display: none !important;
+            }
+        }
+
         /* === RESPONSIVE DESIGN === */
         @media (max-width: 768px) {
             .container {
@@ -339,6 +624,16 @@
             .header-title h2 {
                 font-size: 1.2rem;
             }
+
+            .btn-add-tab {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .action-filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
         }
     </style>
 </head>
@@ -347,6 +642,13 @@
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
     <div class="sidebar" id="sidebar">
+        <h3>Navigasi Utama</h3>
+        <ul class="nav-list">
+            <li class="nav-item active" onclick="switchPage('page-scanner', this)">📱 Scanner Utama</li>
+            <li class="nav-item" onclick="switchPage('page-siswa', this)">📊 Halaman Rekap Siswa</li>
+            <li class="nav-item" onclick="switchPage('page-guru', this)">👨‍🏫 Halaman Guru</li>
+        </ul>
+
         <h3>Pengaturan Tampilan</h3>
         <div class="theme-switch-wrapper">
             <span>Mode Terang</span>
@@ -384,22 +686,367 @@
         </div>
     </div>
 
-    <div class="container">
-        <div class="panel-scanner">
-            <h3>Scanner QR CODE</h3>
-            <div id="reader"></div>
-            <div id="pesan_hasil">Menunggu scan...</div>
-        </div>
-
-        <div class="panel-daftar">
-            <div class="daftar-header-box">
-                <h3>Daftar Hadir</h3>
+    <div id="page-scanner" class="page-view active">
+        <div class="container">
+            <div class="panel-scanner">
+                <h3>Scanner QR CODE</h3>
+                <div id="reader"></div>
+                <div id="pesan_hasil">Menunggu scan...</div>
             </div>
-            <ul id="daftar_absen"></ul>
+
+            <div class="panel-daftar">
+                <div class="daftar-header-box">
+                    <h3>Daftar Hadir</h3>
+                </div>
+                <ul id="daftar_absen"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-siswa" class="page-view">
+        <div class="rekap-container">
+            <h3 class="section-title">Halaman Rekap Siswa</h3>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-title">Total Siswa</span>
+                    <span class="stat-value" id="stat-total-siswa">32</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-title">Rata-rata Kehadiran</span>
+                    <span class="stat-value" style="color: #10b981;">95%</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-title">Tepat Waktu</span>
+                    <span class="stat-value" style="color: #3b82f6;">38 Hari</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-title">Terlambat</span>
+                    <span class="stat-value" style="color: #f59e0b;">2 Hari</span>
+                </div>
+            </div>
+
+            <div class="sub-menu-bar" id="kelasMenuBar">
+                <button class="tab-btn active" onclick="pilihKelas('11', this)">Kelas 11</button>
+                <button class="tab-btn" onclick="pilihKelas('12', this)">Kelas 12</button>
+                <button class="tab-btn btn-add-tab" onclick="bukaModalTambahKelas()">+ Tambah Kelas (Sheet)</button>
+            </div>
+
+            <div class="action-filter-bar">
+                <div class="search-box">
+                    <input type="text" id="searchSiswa" placeholder="🔍 Cari Nama Siswa..." onkeyup="filterTabelSiswa()">
+                </div>
+                <button class="btn-export" onclick="exportKeCSV('tabel_rekap_siswa', 'Rekap_Absens_Siswa')">📥 Ekspor CSV</button>
+                <button class="btn-print" onclick="window.print()">🖨️ Cetak</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="custom-table" id="tabel_siswa_full">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Siswa</th>
+                            <th>Masuk (Tepat)</th>
+                            <th>Terlambat</th>
+                            <th>Tidak Masuk</th>
+                            <th>Persentase</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel_rekap_siswa">
+                        <tr>
+                            <td>1</td>
+                            <td>Kaila</td>
+                            <td><span class="badge badge-success">18 Hari</span></td>
+                            <td><span class="badge badge-warning">2 Hari</span></td>
+                            <td><span class="badge badge-danger">0 Hari</span></td>
+                            <td><strong>90%</strong></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Budi Santoso</td>
+                            <td><span class="badge badge-success">20 Hari</span></td>
+                            <td><span class="badge badge-warning">0 Hari</span></td>
+                            <td><span class="badge badge-danger">0 Hari</span></td>
+                            <td><strong>100%</strong></td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Siti Aminah</td>
+                            <td><span class="badge badge-success">19 Hari</span></td>
+                            <td><span class="badge badge-warning">1 Hari</span></td>
+                            <td><span class="badge badge-danger">0 Hari</span></td>
+                            <td><strong>95%</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-guru" class="page-view">
+        <div class="rekap-container">
+            <h3 class="section-title">Halaman Rekap Kehadiran Guru</h3>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-title">Total Guru Pengajar</span>
+                    <span class="stat-value">12</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-title">Hadir Hari Ini</span>
+                    <span class="stat-value" style="color: #10b981;">10</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-title">Terlambat</span>
+                    <span class="stat-value" style="color: #f59e0b;">1</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-title">Izin / Sakit</span>
+                    <span class="stat-value" style="color: #ef4444;">1</span>
+                </div>
+            </div>
+
+            <div class="action-filter-bar">
+                <div class="search-box">
+                    <input type="text" id="searchGuru" placeholder="🔍 Cari Nama Guru / Mapel..." onkeyup="filterTabelGuru()">
+                </div>
+                <button class="btn-export" style="background: #8b5cf6;" onclick="bukaModalTambahGuru()">+ Tambah Data Guru</button>
+                <button class="btn-export" onclick="exportKeCSV('tabel_rekap_guru', 'Rekap_Absensi_Guru')">📥 Ekspor CSV</button>
+                <button class="btn-print" onclick="window.print()">🖨️ Cetak</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="custom-table" id="tabel_guru_full">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>NIP / ID</th>
+                            <th>Nama Guru</th>
+                            <th>Mata Pelajaran</th>
+                            <th>Hadir Tepat</th>
+                            <th>Terlambat</th>
+                            <th>Izin/Sakit</th>
+                            <th>Status Kehadiran</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel_rekap_guru">
+                        <tr>
+                            <td>1</td>
+                            <td>G-1001</td>
+                            <td>Drs. Joko Widodo</td>
+                            <td>Matematika</td>
+                            <td><span class="badge badge-success">22 Hari</span></td>
+                            <td><span class="badge badge-warning">1 Hari</span></td>
+                            <td><span class="badge badge-danger">0 Hari</span></td>
+                            <td><span class="badge badge-success">Sangat Baik (96%)</span></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>G-1002</td>
+                            <td>Sri Wahyuni, S.Pd.</td>
+                            <td>Bahasa Indonesia</td>
+                            <td><span class="badge badge-success">23 Hari</span></td>
+                            <td><span class="badge badge-warning">0 Hari</span></td>
+                            <td><span class="badge badge-danger">0 Hari</span></td>
+                            <td><span class="badge badge-success">Sempurna (100%)</span></td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>G-1003</td>
+                            <td>Ahmad Dahlan, M.Pd.</td>
+                            <td>Fisika</td>
+                            <td><span class="badge badge-success">20 Hari</span></td>
+                            <td><span class="badge badge-warning">2 Hari</span></td>
+                            <td><span class="badge badge-danger">1 Hari</span></td>
+                            <td><span class="badge badge-warning">Baik (87%)</span></td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>G-1004</td>
+                            <td>Nurul Hidayah, S.Si.</td>
+                            <td>Kimia</td>
+                            <td><span class="badge badge-success">21 Hari</span></td>
+                            <td><span class="badge badge-warning">1 Hari</span></td>
+                            <td><span class="badge badge-danger">1 Hari</span></td>
+                            <td><span class="badge badge-success">Baik (91%)</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modalTambahKelas">
+        <div class="modal-content">
+            <h4>Tambah Kelas Baru</h4>
+            <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 1rem;">
+                Nama kelas ini akan otomatis membuat Tab/Sheet baru di Google Sheets.
+            </p>
+            <input type="text" id="namaKelasBaru" placeholder="Contoh: Kelas 10A">
+            <div class="modal-actions">
+                <button class="tab-btn" onclick="tutupModalTambahKelas()">Batal</button>
+                <button class="tab-btn btn-add-tab" onclick="prosesTambahKelas()">Buat Tab Sheet</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modalTambahGuru">
+        <div class="modal-content">
+            <h4>Tambah Data Guru Baru</h4>
+            <input type="text" id="nipGuru" placeholder="NIP / ID Guru">
+            <input type="text" id="namaGuru" placeholder="Nama Lengkap Guru">
+            <input type="text" id="mapelGuru" placeholder="Mata Pelajaran">
+            <div class="modal-actions">
+                <button class="tab-btn" onclick="tutupModalTambahGuru()">Batal</button>
+                <button class="tab-btn btn-add-tab" onclick="prosesTambahGuru()">Simpan Guru</button>
+            </div>
         </div>
     </div>
 
     <script>
+        // === LOGIKA NAVIGASI HALAMAN (MULTI-PAGE) ===
+        function switchPage(pageId, element) {
+            document.querySelectorAll('.page-view').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            document.getElementById(pageId).classList.add('active');
+            element.classList.add('active');
+
+            toggleSidebar();
+        }
+
+        // === LOGIKA PILIH TAB KELAS DI REKAP SISWA ===
+        function pilihKelas(namaKelas, element) {
+            document.querySelectorAll('#kelasMenuBar .tab-btn').forEach(btn => {
+                if(!btn.classList.contains('btn-add-tab')) {
+                    btn.classList.remove('active');
+                }
+            });
+            element.classList.add('active');
+            console.log("Memuat data rekap untuk: " + namaKelas);
+        }
+
+        // === LOGIKA MODAL TAMBAH KELAS ===
+        function bukaModalTambahKelas() {
+            document.getElementById('modalTambahKelas').classList.add('active');
+        }
+
+        function tutupModalTambahKelas() {
+            document.getElementById('modalTambahKelas').classList.remove('active');
+            document.getElementById('namaKelasBaru').value = '';
+        }
+
+        function prosesTambahKelas() {
+            const namaKelas = document.getElementById('namaKelasBaru').value.trim();
+            if(!namaKelas) {
+                alert("Harap masukkan nama kelas!");
+                return;
+            }
+
+            const btnBaru = document.createElement('button');
+            btnBaru.className = 'tab-btn';
+            btnBaru.innerText = namaKelas;
+            btnBaru.onclick = function() { pilihKelas(namaKelas, this); };
+
+            const containerMenu = document.getElementById('kelasMenuBar');
+            const btnAdd = containerMenu.querySelector('.btn-add-tab');
+            containerMenu.insertBefore(btnBaru, btnAdd);
+
+            tutupModalTambahKelas();
+            alert(`Tab "${namaKelas}" berhasil dibuat!`);
+        }
+
+        // === LOGIKA MODAL TAMBAH GURU ===
+        function bukaModalTambahGuru() {
+            document.getElementById('modalTambahGuru').classList.add('active');
+        }
+
+        function tutupModalTambahGuru() {
+            document.getElementById('modalTambahGuru').classList.remove('active');
+            document.getElementById('nipGuru').value = '';
+            document.getElementById('namaGuru').value = '';
+            document.getElementById('mapelGuru').value = '';
+        }
+
+        function prosesTambahGuru() {
+            const nip = document.getElementById('nipGuru').value.trim();
+            const nama = document.getElementById('namaGuru').value.trim();
+            const mapel = document.getElementById('mapelGuru').value.trim();
+
+            if (!nip || !nama || !mapel) {
+                alert("Harap isi semua bidang!");
+                return;
+            }
+
+            const tbody = document.getElementById('tabel_rekap_guru');
+            const count = tbody.querySelectorAll('tr').length + 1;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${count}</td>
+                <td>${nip}</td>
+                <td>${nama}</td>
+                <td>${mapel}</td>
+                <td><span class="badge badge-success">0 Hari</span></td>
+                <td><span class="badge badge-warning">0 Hari</span></td>
+                <td><span class="badge badge-danger">0 Hari</span></td>
+                <td><span class="badge badge-success">Baru</span></td>
+            `;
+            tbody.appendChild(tr);
+
+            tutupModalTambahGuru();
+            alert(`Data guru ${nama} berhasil ditambahkan!`);
+        }
+
+        // === FITUR FILTER PENCARIAN TABEL ===
+        function filterTabelSiswa() {
+            const input = document.getElementById('searchSiswa').value.toLowerCase();
+            const rows = document.querySelectorAll('#tabel_rekap_siswa tr');
+            rows.forEach(row => {
+                const nama = row.cells[1].textContent.toLowerCase();
+                row.style.display = nama.includes(input) ? '' : 'none';
+            });
+        }
+
+        function filterTabelGuru() {
+            const input = document.getElementById('searchGuru').value.toLowerCase();
+            const rows = document.querySelectorAll('#tabel_rekap_guru tr');
+            rows.forEach(row => {
+                const nama = row.cells[2].textContent.toLowerCase();
+                const mapel = row.cells[3].textContent.toLowerCase();
+                const nip = row.cells[1].textContent.toLowerCase();
+                row.style.display = (nama.includes(input) || mapel.includes(input) || nip.includes(input)) ? '' : 'none';
+            });
+        }
+
+        // === FITUR EKSPOR KE CSV (EXCEL FRIENDLY) ===
+        function exportKeCSV(tableId, filename) {
+            const tbody = document.getElementById(tableId);
+            const rows = tbody.querySelectorAll('tr');
+            let csv = [];
+            
+            rows.forEach(row => {
+                let rowData = [];
+                row.querySelectorAll('td').forEach(cell => {
+                    let text = cell.innerText.replace(/(\r\n|\n|\r)/gm, " ").trim();
+                    rowData.push(`"${text}"`);
+                });
+                csv.push(rowData.join(','));
+            });
+
+            const csvContent = "data:text/csv;charset=utf-8," + csv.join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `${filename}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
         // === TOGGLE SIDEBAR ===
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('active');
@@ -427,9 +1074,8 @@
             }
         }
 
-        // === RESTORE TEMA & PENGATURAN SAAT PERTAMA KALI MUAT ===
+        // === RESTORE TEMA & PENGATURAN ===
         document.addEventListener('DOMContentLoaded', () => {
-            // Restore Tema
             const savedTheme = localStorage.getItem('theme') || 'dark';
             document.documentElement.setAttribute('data-theme', savedTheme);
             const themeToggle = document.getElementById('themeToggle');
@@ -437,14 +1083,12 @@
                 themeToggle.checked = (savedTheme === 'light');
             }
 
-            // Restore Pengaturan Suara TTS (Default: true / aktif)
             const savedVoice = localStorage.getItem('useVoice');
             const voiceToggle = document.getElementById('voiceToggle');
             if (voiceToggle) {
                 voiceToggle.checked = (savedVoice !== 'false');
             }
 
-            // Restore Volume (Default: 1.0 / 100%)
             const savedVolume = localStorage.getItem('appVolume') ?? '1.0';
             const volumeRange = document.getElementById('volumeRange');
             if (volumeRange) {
@@ -474,7 +1118,7 @@
                 .catch(err => console.error("Gagal muat data:", err));
         }
 
-        // === FUNGSI SUARA BEEP ('BIB') DENGAN VOLUME KENCANG & DAPAT DISESUAIKAN ===
+        // === FUNGSI SUARA BEEP ===
         function playBeep() {
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -483,14 +1127,12 @@
                 const oscillator = audioCtx.createOscillator();
                 const gainNode = audioCtx.createGain();
 
-                // Ambil volume dari slider (0.0 - 1.0)
                 const vol = parseFloat(localStorage.getItem('appVolume') ?? '1.0');
-                if (vol <= 0) return; // Jika volume 0, jangan bunyikan beep
+                if (vol <= 0) return;
 
                 oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(850, audioCtx.currentTime); // Frekuensi 850Hz (Suara Bib Jelas)
+                oscillator.frequency.setValueAtTime(850, audioCtx.currentTime);
                 
-                // Set Volume Beep (ditingkatkan agar lebih kencang)
                 gainNode.gain.setValueAtTime(vol * 0.8, audioCtx.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.18);
 
@@ -512,7 +1154,6 @@
                 suara.lang = 'id-ID';
                 suara.rate = 1.0;
                 
-                // Ambil volume dari slider (0.0 - 1.0)
                 const vol = parseFloat(localStorage.getItem('appVolume') ?? '1.0');
                 suara.volume = vol; 
 
@@ -520,7 +1161,7 @@
             }
         }
 
-        // === FUNGSI TAMBAH ITEM DENGAN ANIMASI SLIDE-IN ===
+        // === FUNGSI TAMBAH ITEM KE DAFTAR HADIR ===
         function tambahItemKeDaftar(siswa) {
             let listAbsen = document.getElementById('daftar_absen');
             let item = document.createElement('li');
@@ -533,7 +1174,6 @@
             if (isProcessing) return;
             isProcessing = true;
 
-            // 1. BUNYIKAN BEEP SANGAT CEPAT DETIK ITU JUGA SAAT QR TERBACA
             playBeep();
 
             try {
@@ -552,14 +1192,12 @@
                 let textPesan = document.getElementById('pesan_hasil');
                 textPesan.innerText = data.message || "Proses selesai";
 
-                // 2. SETELAH PROSES SELESAI -> BARU UCAPKAN SUARA DENGAN TEXT TO SPEECH (JIKA DIAKTIFKAN)
                 if (data.status === 'success') {
                     let namaSiswa = data.siswa ? data.siswa.nama : '';
                     if (useVoice) {
                         bicara(`Berhasil Absen, Selamat Datang ${namaSiswa}`);
                     }
                     textPesan.style.color = '#10b981';
-
                     tambahItemKeDaftar(data.siswa);
 
                 } else if (data.status === 'warning') {
